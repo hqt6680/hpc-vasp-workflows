@@ -1,0 +1,10 @@
+{
+  "ssh_host": "my-cluster",
+  "ssh_user": "my-user",
+  "ssh_hostname": "login",
+  "remote_root": "/home/my-user/project",
+  "case_prefix": "Materials",
+  "job_id_suffix": ".cluster",
+  "qstat_path": "/opt/pbs/bin/qstat",
+  "desktop_proxy": null
+}
