@@ -1,0 +1,21 @@
+#!/bin/bash
+#PBS -N llg
+#PBS -q workq
+#PBS -l walltime=00:08:00
+#PBS -j oe
+
+set -euo pipefail
+cd -- "${PBS_O_WORKDIR:?}"
+exec > "llg_${PBS_JOBID:?}.out" 2>&1
+export OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 MPLBACKEND=Agg
+py=../tb2j/env/bin/python
+bonds=../tb2j/merged/n180/bonds.csv
+printf 'START %s %s\n' "$(date -Iseconds)" "$(hostname)"
+"$py" -B validation/validate_tb2j.py program/nanoribbon_cpu "$bonds"
+sha256sum "$bonds"
+program/nanoribbon_cpu --config tb2j.ini
+out=result/MnInP2Te6/llg/tb2j/temperature/Nx32_Ny32_Xperiodic_Yperiodic
+"$py" -B plot_spin_texture.py "$out/final_state.txt" --output "$out/spin" \
+    --subtitle '32 × 32 periodic | 40 ps | T = 0 K, B = 0 T, K = 0'
+test -s "$out/spin.png" && test -s "$out/spin.pdf"
+printf 'END %s\n' "$(date -Iseconds)"

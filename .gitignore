@@ -1,0 +1,6 @@
+/share/
+/.serena/
+
+__pycache__/
+*.pyc
+.env
