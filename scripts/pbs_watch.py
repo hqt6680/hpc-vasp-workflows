@@ -140,9 +140,21 @@ def verify_project_thread(thread):
     with closing(sqlite3.connect(state.as_uri() + "?mode=ro", uri=True, timeout=3)) as connection:
         row = connection.execute("SELECT cwd, rollout_path FROM threads WHERE id=?", (thread,)).fetchone()
     cwd = row[0] if row else None
-    if not cwd or not Path(cwd).samefile(PROJECT):
+    workspace = Path(cwd) if cwd else None
+    if workspace is None or not project_workspace(workspace):
         raise ValueError("The target Codex chat must belong to this VASP project")
     return Path(row[1]) if row[1] else None
+
+
+def project_workspace(workspace):
+    try:
+        if workspace.samefile(PROJECT):
+            return True
+        # A migrated chat keeps its workspace with junctions to this checkout.
+        return ((workspace / "源码").samefile(PROJECT)
+                and (workspace / "scripts").samefile(PROJECT / "scripts"))
+    except (FileNotFoundError, NotADirectoryError):
+        return False
 
 
 def weekly_allowance_available(rollout):

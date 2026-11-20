@@ -35,7 +35,13 @@ PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
 "$PY" -B phon3/phon3.py stop-review eq
 ```
 
-全谱 DFPT 作业 `53586.master` 于 11 月 20 日 23:37 在 `node06` 启动，工作目录为 `phon3/dfpt/`，28 MPI ranks，`IBRION=8`、`EDIFF=1E-7`，PBS 已登记回传且省略 walltime。结束后核对基态和每个响应的原生电子收敛、参考原子力和 OUTCAR 的总力漂移。运行 `validate dfpt` 和 `spectrum`，检查 Γ、X、Y、M、Γ–X–M–Y–Γ–M 路径及 40×40×1 q 网格，比较原始和声学和则处理后的低频振型。验收后更新 Master 的重优化和声子教程。
+单个 56 原子作业 `53586.master` 已按要求终止（F/271，第 7 个电子步）。全谱改用 `phon3/small.py` 和 `phon3/small.pbs`。三个 28 原子超胞分别计算 Γ/X、Γ/Y、Γ/M，均用 `IBRION=8`、`EDIFF=1E-7`。每组的 32 个电子 k 点由母胞 Γ 8×8×1 折叠得到。用历史力常数回算，40×40×1 网格上全部 42 支的最大频差小于 3E−7 THz。
+
+11 月 21 日已启动 `53592.master`（x，node06）与 `53593.master`（m，node12），各 28 核，已登记原聊天回传。实际 VASP 不可约 k 点数分别为 15 和 13，坐标及权重已核对。任一小节点释放后先验收结束分支，核对 PBS 和算例作业表，再从已预检的 `phon3/y/` 提交 `../small.pbs` 并登记，同一算例最多用两个小节点。
+
+全部结束后在算例根执行 `"$PY" -B phon3/small.py merge`。逐组验收基态和各响应、参考残力、总力漂移、磁态和电子网格。复核三份 Γ 矩阵的一致性和四点傅里叶回算误差，检查 `phon3/spectrum-small/` 的 Γ–X–M–Y–Γ–M 色散、40×40×1 网格及施加声学和则前后的低频振型，通过后更新 Master。
+
+本机监听支持迁移前的聊天工作目录。该目录内的“源码”和 `scripts` 两个目录联接分别指向实际 Git 工作区和它的脚本目录。登记和投递均核验聊天归属。
 
 下表为本次 SSH 核验的 SHA-256，路径相对于 `/public/home/zjt/task/now/hqt`。教程与作业表后续按验收结果更新。
 
@@ -46,8 +52,10 @@ PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
 | `Master/relax+scf.md` | `f39402427724e60c7c7384817f963e6234413ef40e83990d2b359844fc52ec7d` |
 | `Master/case_index.md` | `99e539ac4bb839b1fb67a3e0c4c839706171710524aeb0648cbce46d2cc67c35` |
 | `Master/vasp_environment.md` | `8ef5337d470da662a6203f14fd31a5440746d280df43503d513f7b0e38d741ed` |
-| `Materials/examples/K2CrF4/workflow.md` | `3874239a93cc9588078acf0a8bb8432a5deee171ea045808d9325d7a0922385c` |
+| `Materials/examples/K2CrF4/workflow.md` | `2b9a254d34b8687148de69022eae7cfbb465da8f50518f7fb35811f7c052e218` |
 | `Materials/examples/K2CrF4/gamma/hessian.py` | `ce4ff3ffbd39a86dc542dd67fd1d889d80626b574a758e4fc4294899cc13a7cf` |
 | `Materials/examples/K2CrF4/gamma/hessian.pbs` | `933630f2ea55b70cf4b7eb2084e2f3b29882283a199686ff34c1e5fd8a734497` |
 | `Materials/examples/K2CrF4/phon3/phon3.py` | `0d64f90c7815aa768cb32bff124218b7b19d683397e6bc2bff27a9c55aa21c20` |
 | `Materials/examples/K2CrF4/phon3/run.pbs` | `e7b32812f30b755661fc5d882fe889e188f3ce8c9e496d7f7a4520e259754cf0` |
+| `Materials/examples/K2CrF4/phon3/small.py` | `72f17c943b1d672e2db054ef0bcfb3be09eb37f4301ffd9f73982ef00b0ac3a8` |
+| `Materials/examples/K2CrF4/phon3/small.pbs` | `c5f0b7ca58a2e9746d9281ab13d701b66cc7321a6844b713a1e2a759d5ce403a` |
