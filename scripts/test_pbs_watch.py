@@ -12,6 +12,7 @@ import unittest
 import uuid
 from unittest.mock import patch
 
+import desktop_followup
 import pbs_watch
 from desktop_followup import receipt
 from desktop_owner import proxy_matches
@@ -172,7 +173,7 @@ class SiteConfigTests(unittest.TestCase):
 
 class WatchDBTests(unittest.TestCase):
     def setUp(self):
-        desktop = patch.object(pbs_watch, "verified_desktop", return_value=1234)
+        desktop = patch.object(desktop_followup, "verified_desktop", return_value=1234)
         self.desktop = desktop.start()
         self.addCleanup(desktop.stop)
         self.read_allowance = pbs_watch.weekly_allowance_available
@@ -340,7 +341,7 @@ class WatchDBTests(unittest.TestCase):
 
     @patch.object(pbs_watch, "verify_project_thread")
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
-    @patch.object(pbs_watch, "run_bounded")
+    @patch.object(desktop_followup, "run_bounded")
     def test_terminal_delivery_is_batched_and_requires_ack(self, run, _find, verify):
         self.db.add(SECOND_JOB_ID, "socx", CASE, THREAD)
         self.assertEqual(self.db.observe({
@@ -352,8 +353,8 @@ class WatchDBTests(unittest.TestCase):
         pbs_watch.deliver_pending(self.db)
         verify.assert_called_once_with(THREAD)
         run.assert_called_once()
-        self.assertEqual(run.call_args.args[0], ["test-node.exe", str(pbs_watch.DELIVERY_SCRIPT)])
-        self.assertEqual(run.call_args.kwargs["max_output_bytes"], pbs_watch.DELIVERY_OUTPUT_LIMIT)
+        self.assertEqual(run.call_args.args[0], ["test-node.exe", str(desktop_followup.DELIVERY_SCRIPT)])
+        self.assertEqual(run.call_args.kwargs["max_output_bytes"], desktop_followup.DELIVERY_OUTPUT_LIMIT)
         payload = json.loads(run.call_args.kwargs["input"])
         self.assertEqual(payload["threadId"], THREAD)
         event_ids = {row["event_id"] for row in self.db.status()}
@@ -368,7 +369,7 @@ class WatchDBTests(unittest.TestCase):
 
     @patch.object(pbs_watch, "verify_project_thread")
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
-    @patch.object(pbs_watch, "run_delivery")
+    @patch.object(desktop_followup, "run_bounded")
     def test_unavailable_delivery_retries_same_batch_with_same_message_id(self, run, _find, _verify):
         self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
         run.side_effect = [
@@ -387,7 +388,7 @@ class WatchDBTests(unittest.TestCase):
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
     @patch.object(pbs_watch.time, "sleep")
     @patch.object(pbs_watch, "reopen_desktop_thread", return_value=True)
-    @patch.object(pbs_watch, "run_delivery")
+    @patch.object(desktop_followup, "run_bounded")
     def test_missing_thread_owner_reopens_and_retries_same_event(self, run, reopen, _sleep, _find, _verify):
         self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
         run.side_effect = [
@@ -405,7 +406,7 @@ class WatchDBTests(unittest.TestCase):
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
     @patch.object(pbs_watch.time, "sleep")
     @patch.object(pbs_watch, "reopen_desktop_thread", return_value=True)
-    @patch.object(pbs_watch, "run_delivery")
+    @patch.object(desktop_followup, "run_bounded")
     def test_chat_is_not_reopened_again_if_owner_stays_missing(self, run, reopen, _sleep, _find, _verify):
         self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
         missing = subprocess.CompletedProcess([], 0, '{"status":"unavailable","reason":"thread_owner_missing"}', "")
@@ -423,7 +424,7 @@ class WatchDBTests(unittest.TestCase):
 
     @patch.object(pbs_watch, "verify_project_thread")
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
-    @patch.object(pbs_watch, "run_bounded", side_effect=OSError("launch failed"))
+    @patch.object(desktop_followup, "run_bounded", side_effect=OSError("launch failed"))
     def test_process_spawn_failure_returns_to_pending(self, run, _find, _verify):
         self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
         with self.assertLogs(level="WARNING"):
@@ -443,7 +444,7 @@ class WatchDBTests(unittest.TestCase):
 
     @patch.object(pbs_watch, "verify_project_thread")
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
-    @patch.object(pbs_watch, "run_bounded")
+    @patch.object(desktop_followup, "run_bounded")
     def test_wrong_desktop_keeps_event_pending_without_opening_ipc_client(self, run, _find, _verify):
         self.desktop.return_value = None
         self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
@@ -471,7 +472,7 @@ class WatchDBTests(unittest.TestCase):
 
     @patch.object(pbs_watch, "verify_project_thread")
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
-    @patch.object(pbs_watch, "run_delivery")
+    @patch.object(desktop_followup, "run_bounded")
     def test_ambiguous_delivery_does_not_replay(self, run, _find, _verify):
         self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
         reopened = pbs_watch.WatchDB(self.path)
@@ -480,7 +481,7 @@ class WatchDBTests(unittest.TestCase):
         event_id = row["event_id"]
         responses = {
             "timeout": subprocess.TimeoutExpired("test-node.exe", timeout=45),
-            "ipc_error": OSError("IPC interrupted"),
+            "ipc_error": RuntimeError("IPC interrupted after launch"),
             "output_overflow": RuntimeError("output exceeded the limit"),
             "nonzero": subprocess.CompletedProcess([], 1, '{"status":"unavailable"}', ""),
             "malformed": subprocess.CompletedProcess([], 0, "invalid output", ""),
@@ -501,7 +502,7 @@ class WatchDBTests(unittest.TestCase):
 
     @patch.object(pbs_watch, "verify_project_thread")
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
-    @patch.object(pbs_watch, "run_delivery")
+    @patch.object(desktop_followup, "run_bounded")
     def test_delivery_uses_pending_only_and_limits_messages(self, run, _find, _verify):
         observed = {}
         for index in range(pbs_watch.DELIVERY_BATCH_SIZE + 1):

@@ -1,7 +1,6 @@
 """Watch registered VASP PBS jobs and deliver startup and terminal events to Codex Desktop."""
 
 import argparse
-import asyncio
 import hashlib
 import json
 import logging
@@ -22,7 +21,7 @@ from pathlib import Path, PurePosixPath
 
 from bounded_process import run_bounded
 from desktop_owner import verified_desktop
-from desktop_followup import followup
+from desktop_followup import DeliveryLaunchError, run_delivery
 
 PROJECT = Path(__file__).resolve().parents[1]
 CONFIG_FILE = PROJECT / "scripts" / "pbs_watch.config.json"
@@ -31,10 +30,8 @@ TASK_NAME = "CodexVaspPbsWatch"
 TERMINAL = {"F", "X"}
 DELIVERED_STATES = ("steered", "started", "received")
 ACKNOWLEDGEABLE_STATES = ("sending", "queued", *DELIVERED_STATES)
-DELIVERY_SCRIPT = PROJECT / "scripts" / "desktop_delivery.mjs"
 QUERY_BATCH_SIZE = 16
 QUERY_OUTPUT_LIMIT = 1024 * 1024
-DELIVERY_OUTPUT_LIMIT = 16 * 1024
 DELIVERY_BATCH_SIZE = 16
 PENDING_LIMIT = 64
 DESTINATIONS_PER_POLL = 4
@@ -505,24 +502,6 @@ def event_message(rows):
     )
 
 
-class DeliveryLaunchError(Exception):
-    """The delivery subprocess did not start."""
-
-
-def run_delivery(executable, payload):
-    if verified_desktop(SITE.desktop_proxy) is None:
-        response = asyncio.run(followup(executable, json.loads(payload), SITE.desktop_proxy))
-        return subprocess.CompletedProcess([], 0, json.dumps(response), "")
-    command = [executable, str(DELIVERY_SCRIPT)]
-    try:
-        return run_bounded(
-            command, cwd=PROJECT, input=payload, timeout=25, max_output_bytes=DELIVERY_OUTPUT_LIMIT,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-    except OSError as error:
-        raise DeliveryLaunchError(str(error)) from error
-
-
 def reopen_desktop_thread(thread):
     if os.name != "nt" or verified_desktop(SITE.desktop_proxy) is None:
         return False
@@ -532,17 +511,6 @@ def reopen_desktop_thread(thread):
         logging.warning("Could not reopen the target Codex Desktop chat: %s", error)
         return False
     return True
-
-
-def delivery_response(result):
-    if result.returncode == 0:
-        try:
-            response = json.loads(result.stdout)
-        except json.JSONDecodeError:
-            return {}
-        if isinstance(response, dict):
-            return response
-    return {}
 
 
 def deliver_pending(db):
@@ -573,15 +541,14 @@ def deliver_pending(db):
             continue
         event_ids = sorted(row["event_id"] for row in claimed)
         message_id = str(uuid.uuid5(uuid.UUID(thread), "\n".join(event_ids)))
-        payload = json.dumps({
+        message = {
             "threadId": thread,
             "clientUserMessageId": message_id,
             "prompt": event_message(claimed),
-        }, ensure_ascii=False)
+        }
         reopened = any((row["detail"] or "").startswith(REOPENED_CHAT) for row in claimed)
         try:
-            result = run_delivery(executable, payload)
-            response = delivery_response(result)
+            response = run_delivery(executable, message, SITE.desktop_proxy)
             if (response.get("status") == "unavailable"
                     and response.get("reason") == "thread_owner_missing"
                     and not reopened and not reopened_in_poll
@@ -589,8 +556,7 @@ def deliver_pending(db):
                 reopened = reopened_in_poll = True
                 logging.info("Reopened the original Codex Desktop chat after IPC owner discovery failed")
                 time.sleep(2)
-                result = run_delivery(executable, payload)
-                response = delivery_response(result)
+                response = run_delivery(executable, message, SITE.desktop_proxy)
         except DeliveryLaunchError as error:
             detail = str(error)[:300]
             if reopened:
@@ -601,11 +567,7 @@ def deliver_pending(db):
             continue
         except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
             logging.warning("Codex Desktop delivery %s ended without confirmation (%s); verify before retry",
-                            message_id, type(error).__name__)
-            continue
-        if result.returncode:
-            logging.warning("Codex Desktop delivery %s exited with code %d; verify before retry",
-                            message_id, result.returncode)
+                            message_id, error)
             continue
         status = response.get("status")
         turn_id = response.get("turnId")

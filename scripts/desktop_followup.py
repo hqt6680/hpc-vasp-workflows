@@ -9,7 +9,12 @@ import xml.etree.ElementTree as ET
 from contextlib import closing
 from pathlib import Path
 
-from desktop_owner import app_tools_pipe
+from bounded_process import run_bounded
+from desktop_owner import app_tools_pipe, verified_desktop
+
+
+DELIVERY_SCRIPT = Path(__file__).with_name("desktop_delivery.mjs")
+DELIVERY_OUTPUT_LIMIT = 16 * 1024
 
 
 def receipt(db, thread, prompt):
@@ -98,3 +103,27 @@ async def followup(node, message, proxy):
                 pass
             await proc.wait()
     return {"status": "unknown"} if sent else offline
+
+
+class DeliveryLaunchError(Exception):
+    """The native delivery subprocess did not start."""
+
+
+def run_delivery(node, message, proxy):
+    if verified_desktop(proxy) is None:
+        return asyncio.run(followup(node, message, proxy))
+    try:
+        result = run_bounded(
+            [node, str(DELIVERY_SCRIPT)], cwd=DELIVERY_SCRIPT.parent.parent,
+            input=json.dumps(message, ensure_ascii=False), timeout=25, max_output_bytes=DELIVERY_OUTPUT_LIMIT,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+    except OSError as error:
+        raise DeliveryLaunchError(str(error)) from error
+    if result.returncode:
+        raise RuntimeError(f"Desktop delivery helper exited with code {result.returncode}")
+    try:
+        response = json.loads(result.stdout)
+    except ValueError as error:
+        raise RuntimeError("Invalid Desktop delivery receipt") from error
+    return response if isinstance(response, dict) else {}
