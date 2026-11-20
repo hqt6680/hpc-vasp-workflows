@@ -36,6 +36,7 @@ DELIVERY_OUTPUT_LIMIT = 16 * 1024
 DELIVERY_BATCH_SIZE = 16
 PENDING_LIMIT = 64
 DESTINATIONS_PER_POLL = 4
+REOPENED_CHAT = "Desktop chat reopened for this event."
 STARTUP_STALL_SECONDS = 240
 TRACE_TIME_FORMAT = "%m/%d/%Y %H:%M:%S"
 PBS_TIME_FORMAT = "%a %b %d %H:%M:%S %Y"
@@ -400,7 +401,8 @@ class WatchDB:
 
     def pending(self):
         return [dict(row) for row in self.db.execute(
-            "SELECT jobs.*, event_id, event_kind, reason, observed_state FROM events JOIN jobs USING(job_id) "
+            "SELECT jobs.*, event_id, event_kind, reason, observed_state, events.detail "
+            "FROM events JOIN jobs USING(job_id) "
             "WHERE delivery='pending' ORDER BY events.updated, events.job_id, event_kind LIMIT ?", (PENDING_LIMIT,)
         )]
 
@@ -518,12 +520,35 @@ def run_delivery(executable, payload):
         raise DeliveryLaunchError(str(error)) from error
 
 
+def reopen_desktop_thread(thread):
+    if os.name != "nt" or verified_desktop(SITE.desktop_proxy) is None:
+        return False
+    try:
+        os.startfile(f"codex://threads/{uuid.UUID(thread)}")
+    except (OSError, ValueError) as error:
+        logging.warning("Could not reopen the target Codex Desktop chat: %s", error)
+        return False
+    return True
+
+
+def delivery_response(result):
+    if result.returncode == 0:
+        try:
+            response = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            return {}
+        if isinstance(response, dict):
+            return response
+    return {}
+
+
 def deliver_pending(db):
     batches = {}
     for row in db.pending():
         batch = batches.setdefault((row["thread"], row["case_dir"]), [])
         if len(batch) < DELIVERY_BATCH_SIZE:
             batch.append(row)
+    reopened_in_poll = False
     for (thread, _), rows in islice(batches.items(), DESTINATIONS_PER_POLL):
         if len(event_message(rows).encode("utf-8")) > 32768:
             logging.warning("PBS delivery batch exceeds the IPC size limit; keeping events pending")
@@ -550,11 +575,25 @@ def deliver_pending(db):
             "clientUserMessageId": message_id,
             "prompt": event_message(claimed),
         }, ensure_ascii=False)
+        reopened = any((row["detail"] or "").startswith(REOPENED_CHAT) for row in claimed)
         try:
             result = run_delivery(executable, payload)
+            response = delivery_response(result)
+            if (response.get("status") == "unavailable"
+                    and response.get("reason") == "thread_owner_missing"
+                    and not reopened and not reopened_in_poll
+                    and reopen_desktop_thread(thread)):
+                reopened = reopened_in_poll = True
+                logging.info("Reopened the original Codex Desktop chat after IPC owner discovery failed")
+                time.sleep(2)
+                result = run_delivery(executable, payload)
+                response = delivery_response(result)
         except DeliveryLaunchError as error:
+            detail = str(error)[:300]
+            if reopened:
+                detail = f"{REOPENED_CHAT} {detail}"
             for row in claimed:
-                db.change(row["event_id"], "sending", "pending", str(error)[:300])
+                db.change(row["event_id"], "sending", "pending", detail)
             logging.warning("Could not launch Codex Desktop delivery: %s", error)
             continue
         except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
@@ -565,18 +604,23 @@ def deliver_pending(db):
             logging.warning("Codex Desktop delivery %s exited with code %d; verify before retry",
                             message_id, result.returncode)
             continue
-        try:
-            response = json.loads(result.stdout)
-        except json.JSONDecodeError:
-            response = None
-        status = response.get("status") if isinstance(response, dict) else None
-        turn_id = response.get("turnId") if isinstance(response, dict) else None
+        status = response.get("status")
+        turn_id = response.get("turnId")
         if status == "unavailable":
-            detail = ("Expected Codex Desktop does not own the local IPC pipe"
-                      if response.get("reason") == "desktop_owner" else "Codex Desktop unavailable")
+            reason = response.get("reason")
+            if reason == "thread_owner_missing":
+                detail = "Codex Desktop has no IPC owner for the target chat"
+            elif reason == "desktop_owner":
+                detail = "Expected Codex Desktop does not own the local IPC pipe"
+            else:
+                detail = "Codex Desktop unavailable"
+            if reopened:
+                detail = f"{REOPENED_CHAT} {detail}"
             for row in claimed:
                 db.change(row["event_id"], "sending", "pending", detail)
             logging.info("%s; keeping %d PBS events pending", detail, len(claimed))
+            if reason == "thread_owner_missing":
+                continue
             break
         elif status in DELIVERED_STATES and isinstance(turn_id, str) and turn_id.strip():
             for row in claimed:

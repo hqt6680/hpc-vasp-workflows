@@ -73,7 +73,8 @@ test('explicit inactive-turn rejection starts a new turn without queueing', asyn
 
 test('no owner is retryable without sending a message', async () => {
   const fixture = desktop((_, reply) => reply(null, 'no-client-found'));
-  assert.deepEqual(await deliverNative(input, fixture), { status: 'unavailable' });
+  assert.deepEqual(await deliverNative(input, fixture),
+    { status: 'unavailable', reason: 'thread_owner_missing' });
   assert.deepEqual(fixture.sent.map(row => row.method), ['initialize', 'thread-owner-discovery']);
 });
 

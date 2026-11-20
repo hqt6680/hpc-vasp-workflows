@@ -384,6 +384,44 @@ class WatchDBTests(unittest.TestCase):
 
     @patch.object(pbs_watch, "verify_project_thread")
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
+    @patch.object(pbs_watch.time, "sleep")
+    @patch.object(pbs_watch, "reopen_desktop_thread", return_value=True)
+    @patch.object(pbs_watch, "run_delivery")
+    def test_missing_thread_owner_reopens_and_retries_same_event(self, run, reopen, _sleep, _find, _verify):
+        self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
+        run.side_effect = [
+            subprocess.CompletedProcess([], 0, '{"status":"unavailable","reason":"thread_owner_missing"}', ""),
+            subprocess.CompletedProcess([], 0, '{"status":"steered","turnId":"resumed-turn"}', ""),
+        ]
+        pbs_watch.deliver_pending(self.db)
+        reopen.assert_called_once_with(THREAD)
+        self.assertEqual(len(run.call_args_list), 2)
+        self.assertEqual(run.call_args_list[0], run.call_args_list[1])
+        row, = self.db.status()
+        self.assertEqual((row["delivery"], row["detail"]), ("steered", "resumed-turn"))
+
+    @patch.object(pbs_watch, "verify_project_thread")
+    @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
+    @patch.object(pbs_watch.time, "sleep")
+    @patch.object(pbs_watch, "reopen_desktop_thread", return_value=True)
+    @patch.object(pbs_watch, "run_delivery")
+    def test_chat_is_not_reopened_again_if_owner_stays_missing(self, run, reopen, _sleep, _find, _verify):
+        self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
+        missing = subprocess.CompletedProcess([], 0, '{"status":"unavailable","reason":"thread_owner_missing"}', "")
+        offline = subprocess.CompletedProcess([], 0, '{"status":"unavailable","reason":"desktop_owner"}', "")
+        run.side_effect = [missing, missing, offline, missing]
+        pbs_watch.deliver_pending(self.db)
+        reopened_db = pbs_watch.WatchDB(self.path)
+        self.addCleanup(reopened_db.close)
+        pbs_watch.deliver_pending(reopened_db)
+        pbs_watch.deliver_pending(reopened_db)
+        reopen.assert_called_once_with(THREAD)
+        row, = reopened_db.status()
+        self.assertEqual(row["delivery"], "pending")
+        self.assertTrue(row["detail"].startswith(pbs_watch.REOPENED_CHAT))
+
+    @patch.object(pbs_watch, "verify_project_thread")
+    @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")
     @patch.object(pbs_watch, "run_bounded", side_effect=OSError("launch failed"))
     def test_process_spawn_failure_returns_to_pending(self, run, _find, _verify):
         self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})

@@ -85,6 +85,10 @@ export function deliverNative(input, {
       }
       if (message.type !== 'response' || message.requestId !== requestId) return;
       if (message.resultType === 'error') {
+        if (method === 'thread-owner-discovery' && message.error === 'no-client-found') {
+          finish({ status: 'unavailable', reason: 'thread_owner_missing' });
+          return;
+        }
         if (method === STEER && message.error ===
             'Cannot steer conversation ' + threadId + ' because its active turn already ended') {
           possiblyDelivered = false;
