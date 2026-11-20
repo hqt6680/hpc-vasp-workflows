@@ -17,3 +17,33 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 ## 状态和回退
 
 2026-11-20 验证通过 42 项 Python 测试、6 项 Node.js 测试和技能包打包。在 Windows 计划任务上，真实待回传事件触发原聊天重开，随后收到 `started` 回执。更新脚本后重启 `CodexVaspPbsWatch` 计划任务，按真实事件的 `started` 或 `steered` 回执确认回传。回退可检出 `5e3eec6` 上的相关监听脚本再重启任务，保留 `%LOCALAPPDATA%/CodexVaspPbs` 的数据库。
+
+## K₂CrF₄ 重构相与声子接续
+
+科研算例的权威版本位于 zjt 的 `/public/home/zjt/task/now/hqt/Materials/examples/K2CrF4/`，用 `ssh -o BatchMode=yes zjt` 访问。连接后先核对账号、主机和实际路径，读取 `hqt/AGENTS.md`、`Master/README.md` 与算例 `workflow.md`。算例输入、运行日志和结果由服务器保存，按本节记录的脚本指纹定位接手版本。
+
+2026-11-20 已独立验收 `52590.master` 的 Γ/M DFPT。VASP 6.5.1、Phonopy 2.19.1，28 原子公度超胞、Γ 5×5×1 电子网格、`IBRION=8`、`EDIFF=1E−8`。基态达到电子阈值，12 个响应方向均完成。相同的原始和声学和则处理结果给出 Γ 点最低非平移模约 `+0.621891 THz`、M 点最低模约 `+1.567035 THz`。这两个点已通过，完整 q 网格稳定性仍待验收。结果入口为 `gamma/check/mix2e8/result.json`，优化结构为 `gamma/relax/mix2/CONTCAR`。
+
+下一步使用 `phon3/` 的 56 原子 2×2×1 超胞和 Γ 4×4×1 电子网格，先检验平衡点。该网格展开后对应母胞 Γ 8×8×1。`53525.master` 已提交到 `node06`，28 MPI ranks，walltime 8 小时，核对时为排队 Q。工作目录为 `phon3/eq/`，已登记本机 PBS 监听。此前 Γ/M 计算的参考最大残力约 `0.00143749 eV/Å`，完整谱阶段先按目标最大残力 `0.001 eV/Å` 核对平衡超胞，必要时继续优化。
+
+回传后通过 SSH 重新核验 PBS 和 `phon3/eq/` 输出，再在算例根运行以下验收。运行环境为 `/public/home/zjt/anaconda3/envs/python3.10/bin/python`，依赖 Phonopy 2.19.1、NumPy、spglib 和 Matplotlib。
+
+```bash
+PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
+"$PY" -B phon3/phon3.py validate eq
+```
+
+平衡点通过后，用 `prepare dfpt`、`preflight dfpt` 生成并核对下一步，在 `phon3/dfpt/` 通过 `../run.pbs` 提交。每步提交前查重并核对实际空闲小节点。每个新作业更新算例 PBS 表，按本机 `scripts/README.md` 登记回传。DFPT 完成后运行 `validate dfpt` 和 `spectrum`，检查 Γ、X、Y、M、Γ–X–M–Y–Γ–M 路径及 40×40×1 q 网格，保留原始与声学和则处理后的频率及低频振型。完整谱通过后更新服务器 Master 的重优化和声子教程。
+
+下表为本次 SSH 核验的 SHA-256，路径相对于 `/public/home/zjt/task/now/hqt`。教程与作业表后续按验收结果更新。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `Master/K2CrF4.md` | `c4bd21b34a0daf92e05f3c6df2d43122fe49ec2a0b2d3403c84e4edc79d0951c` |
+| `Master/phonopy.md` | `ac3754703d81e32a8a980f9dbb4f48df7533d66c36db8c80cec9d70185c19984` |
+| `Master/case_index.md` | `99e539ac4bb839b1fb67a3e0c4c839706171710524aeb0648cbce46d2cc67c35` |
+| `Materials/examples/K2CrF4/workflow.md` | `c2cf4bef07cbab60d3bb6bc9815f565a708d0cf573677633c7675827594e18f7` |
+| `Materials/examples/K2CrF4/gamma/hessian.py` | `ce4ff3ffbd39a86dc542dd67fd1d889d80626b574a758e4fc4294899cc13a7cf` |
+| `Materials/examples/K2CrF4/gamma/hessian.pbs` | `933630f2ea55b70cf4b7eb2084e2f3b29882283a199686ff34c1e5fd8a734497` |
+| `Materials/examples/K2CrF4/phon3/phon3.py` | `75a727b0e28dca2bbacac6f04a42bf5910ca81139c1f32abd3c90192f49a1d94` |
+| `Materials/examples/K2CrF4/phon3/run.pbs` | `83dd407cd1f10a40283996145adae106cf951ac380dd03133bada1748970bd19` |
