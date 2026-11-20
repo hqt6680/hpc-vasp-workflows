@@ -37,7 +37,7 @@ PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
 
 单个 56 原子作业 `53586.master` 已按要求终止（F/271，第 7 个电子步）。全谱改用 `phon3/small.py` 和 `phon3/small.pbs`。三个 28 原子超胞分别计算 Γ/X、Γ/Y、Γ/M，均用 `IBRION=8`、`EDIFF=1E-7`。每组的 32 个电子 k 点由母胞 Γ 8×8×1 折叠得到。用历史力常数回算，40×40×1 网格上全部 42 支的最大频差小于 3E−7 THz。
 
-11 月 21 日已启动 `53592.master`（x，node06）与 `53593.master`（m，node12），各 28 核，已登记原聊天回传。实际 VASP 不可约 k 点数分别为 15 和 13，坐标及权重已核对。任一小节点释放后先验收结束分支，核对 PBS 和算例作业表，再从已预检的 `phon3/y/` 提交 `../small.pbs` 并登记，同一算例最多用两个小节点。
+11 月 21 日，Γ/X 作业 `53592.master` 在 node06 运行。因 node12 停用，Γ/M 原作业 `53593.master` 已撤回（F/271），日志保存在 `phon3/m/stopped-53593/`。相同输入已在 node14 以 `53594.master` 重跑。两个在运行的作业各用 28 核，均已登记原聊天回传。VASP 实际不可约 k 点数分别为 15、13，坐标及权重已核对。任一分支回传后先验收，再从已预检的 `phon3/y/` 提交 `../small.pbs` 并登记。选可用小节点，跳过 node12，并行最多占两个小节点。
 
 全部结束后在算例根执行 `"$PY" -B phon3/small.py merge`。逐组验收基态和各响应、参考残力、总力漂移、磁态和电子网格。复核三份 Γ 矩阵的一致性和四点傅里叶回算误差，检查 `phon3/spectrum-small/` 的 Γ–X–M–Y–Γ–M 色散、40×40×1 网格及施加声学和则前后的低频振型，通过后更新 Master。
 
@@ -51,8 +51,8 @@ PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
 | `Master/phonopy.md` | `9905a7f4c7540934f320d7f721731941b433374c35809c43d1abe0cb0726a77d` |
 | `Master/relax+scf.md` | `f39402427724e60c7c7384817f963e6234413ef40e83990d2b359844fc52ec7d` |
 | `Master/case_index.md` | `99e539ac4bb839b1fb67a3e0c4c839706171710524aeb0648cbce46d2cc67c35` |
-| `Master/vasp_environment.md` | `8ef5337d470da662a6203f14fd31a5440746d280df43503d513f7b0e38d741ed` |
-| `Materials/examples/K2CrF4/workflow.md` | `2b9a254d34b8687148de69022eae7cfbb465da8f50518f7fb35811f7c052e218` |
+| `Master/vasp_environment.md` | `46e8f5ef61f7ebc122d494cf744a4e20a69e27acd0e7a8192c58c13a4eaff850` |
+| `Materials/examples/K2CrF4/workflow.md` | `3d01facefca28982c7d3b4cf31887c54a8872cf3c39d1b52809c625fa0c1d92a` |
 | `Materials/examples/K2CrF4/gamma/hessian.py` | `ce4ff3ffbd39a86dc542dd67fd1d889d80626b574a758e4fc4294899cc13a7cf` |
 | `Materials/examples/K2CrF4/gamma/hessian.pbs` | `933630f2ea55b70cf4b7eb2084e2f3b29882283a199686ff34c1e5fd8a734497` |
 | `Materials/examples/K2CrF4/phon3/phon3.py` | `0d64f90c7815aa768cb32bff124218b7b19d683397e6bc2bff27a9c55aa21c20` |
