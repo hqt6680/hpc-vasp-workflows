@@ -1,9 +1,11 @@
-# VASP / PBS 本地工作流
+# VASP / PBS 工作流与技能包
 
-`scripts/` 包含 PBS 运行监听和结果回传辅助，`llg-tb2j-work/` 保存计算及绘图工作流。先阅读 [AGENTS.md](AGENTS.md)。运行需要相应的 VASP/PBS 环境、计算输入和用户有权使用的赝势。技能包单独发布在 [vasp-pbs-skill](https://github.com/hqt6680/vasp-pbs-skill)。
+| 入口 | 用途 |
+| --- | --- |
+| [scripts/](scripts/) | PBS 监听、Codex Desktop 回传与本机工作流辅助 |
+| [share/vasp-pbs/SKILL.md](share/vasp-pbs/SKILL.md) | VASP / PBS 技能、资料与标准算例入口 |
+| [最新技能安装包](https://github.com/hqt6680/vasp-workflows-local/releases/latest) | 下载 `vasp-pbs-skill.zip` 后按包内说明加载 |
 
-## 当前发行版
+LLG、MC 和 TB2J 脚本使用 zjt 服务器的 `Master/Simulation` 主目录。入口和同步规则见 [AGENTS.md](AGENTS.md) 与[自旋模拟入口](share/vasp-pbs/references/Master/Simulation/README.md)。
 
-本地 PBS 运行回传、VASP 算例辅助和 LLG/TB2J 工作流源码。
-
-[GitHub Releases · VASP 工作流 · 源码快照](https://github.com/hqt6680/vasp-workflows-local/releases/tag/source-2026.11.20)
+重新打包运行 `python scripts/package_vasp_pbs.py <输出路径>`。技能包包含离线副本需要的 PBS 脚本。VASP、赝势和计算输入在各自集群环境准备。
