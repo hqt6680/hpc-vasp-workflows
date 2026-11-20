@@ -26,7 +26,9 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 下一步使用 `phon3/` 的 56 原子 2×2×1 超胞和 Γ 4×4×1 电子网格，先检验平衡点。该网格展开后对应母胞 Γ 8×8×1。11 月 20 日 20:06 核对时，`53525.master` 正在 `node06` 以 28 MPI ranks 运行，原作业时限已延至 12 小时。工作目录为 `phon3/eq/`，已登记本机 PBS 监听。后续提交按项目规则默认省略 `walltime`。此前 Γ/M 计算的参考最大残力约 `0.00143749 eV/Å`，完整谱阶段先按目标最大残力 `0.001 eV/Å` 核对平衡超胞，必要时继续优化。
 
-回传后通过 SSH 重新核验 PBS 和 `phon3/eq/` 输出，再在算例根运行以下验收。运行环境为 `/public/home/zjt/anaconda3/envs/python3.10/bin/python`，依赖 Phonopy 2.19.1、NumPy、spglib 和 Matplotlib。
+11 月 20 日 23:03 已对 `53525.master` 写入 `STOPCAR`（`LABORT=.TRUE.`）。第 22–37 步的总能和带能变化均已低于用户选定的 `1E-7` eV，原始 INCAR 为 `EDIFF=1E-8`。回传后经 SSH 核对 PBS 退出原因、VASP 是否完成收尾、末步两项能量变化、磁态和 56 个原子的最终力。仅在输出完整且最大力达标时放行平衡点。若原验收器因手动停止或原阈值退出，保留原判定并按本次约定另记复核结果。
+
+原阈值验收命令如下。运行环境为 `/public/home/zjt/anaconda3/envs/python3.10/bin/python`，依赖 Phonopy 2.19.1、NumPy、spglib 和 Matplotlib。
 
 ```bash
 PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
@@ -44,7 +46,7 @@ PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
 | `Master/relax+scf.md` | `f39402427724e60c7c7384817f963e6234413ef40e83990d2b359844fc52ec7d` |
 | `Master/case_index.md` | `99e539ac4bb839b1fb67a3e0c4c839706171710524aeb0648cbce46d2cc67c35` |
 | `Master/vasp_environment.md` | `8ef5337d470da662a6203f14fd31a5440746d280df43503d513f7b0e38d741ed` |
-| `Materials/examples/K2CrF4/workflow.md` | `210ffa4229b9d17a296d7ad97a44af610344a789a0d81210421c667e4c97f855` |
+| `Materials/examples/K2CrF4/workflow.md` | `847032e40260434c32914bffb9d8d9be5660e54d15c3cba82a9589b313a22f15` |
 | `Materials/examples/K2CrF4/gamma/hessian.py` | `ce4ff3ffbd39a86dc542dd67fd1d889d80626b574a758e4fc4294899cc13a7cf` |
 | `Materials/examples/K2CrF4/gamma/hessian.pbs` | `933630f2ea55b70cf4b7eb2084e2f3b29882283a199686ff34c1e5fd8a734497` |
 | `Materials/examples/K2CrF4/phon3/phon3.py` | `75a727b0e28dca2bbacac6f04a42bf5910ca81139c1f32abd3c90192f49a1d94` |
