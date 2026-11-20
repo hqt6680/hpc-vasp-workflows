@@ -9,7 +9,7 @@ parser.add_argument("output", type=Path)
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
 skill = root / "share" / "vasp-pbs"
-shared = ("bounded_process.py", "desktop_delivery.mjs", "desktop_owner.py")
+shared = ("bounded_process.py", "desktop_delivery.mjs", "desktop_owner.py", "desktop_followup.py")
 tracked = subprocess.check_output(
     ["git", "-C", str(root), "ls-files", "-z", "--", "share/vasp-pbs"]
 ).decode().rstrip("\0").split("\0")

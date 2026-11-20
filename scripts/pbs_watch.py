@@ -1,6 +1,7 @@
 """Watch registered VASP PBS jobs and deliver startup and terminal events to Codex Desktop."""
 
 import argparse
+import asyncio
 import hashlib
 import json
 import logging
@@ -21,13 +22,14 @@ from pathlib import Path, PurePosixPath
 
 from bounded_process import run_bounded
 from desktop_owner import verified_desktop
+from desktop_followup import followup
 
 PROJECT = Path(__file__).resolve().parents[1]
 CONFIG_FILE = PROJECT / "scripts" / "pbs_watch.config.json"
 STATE_DIR = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "CodexVaspPbs"
 TASK_NAME = "CodexVaspPbsWatch"
 TERMINAL = {"F", "X"}
-DELIVERED_STATES = ("steered", "started")
+DELIVERED_STATES = ("steered", "started", "received")
 ACKNOWLEDGEABLE_STATES = ("sending", "queued", *DELIVERED_STATES)
 DELIVERY_SCRIPT = PROJECT / "scripts" / "desktop_delivery.mjs"
 QUERY_BATCH_SIZE = 16
@@ -509,7 +511,8 @@ class DeliveryLaunchError(Exception):
 
 def run_delivery(executable, payload):
     if verified_desktop(SITE.desktop_proxy) is None:
-        return subprocess.CompletedProcess([], 0, '{"status":"unavailable","reason":"desktop_owner"}', "")
+        response = asyncio.run(followup(executable, json.loads(payload), SITE.desktop_proxy))
+        return subprocess.CompletedProcess([], 0, json.dumps(response), "")
     command = [executable, str(DELIVERY_SCRIPT)]
     try:
         return run_bounded(

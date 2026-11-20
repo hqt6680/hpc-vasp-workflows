@@ -13,6 +13,7 @@ import uuid
 from unittest.mock import patch
 
 import pbs_watch
+from desktop_followup import receipt
 from desktop_owner import proxy_matches
 
 
@@ -446,12 +447,27 @@ class WatchDBTests(unittest.TestCase):
     def test_wrong_desktop_keeps_event_pending_without_opening_ipc_client(self, run, _find, _verify):
         self.desktop.return_value = None
         self.db.observe({JOB_ID: job("socz", state="F", exit_code=0)})
-        pbs_watch.deliver_pending(self.db)
+        with patch("desktop_followup.app_tools_pipe", return_value=None):
+            pbs_watch.deliver_pending(self.db)
         self.desktop.assert_called_once_with(pbs_watch.SITE.desktop_proxy)
         run.assert_not_called()
         row, = self.db.status()
         self.assertEqual(row["delivery"], "pending")
         self.assertIn("IPC pipe", row["detail"])
+
+    def test_followup_receipt_requires_original_chat_tool_and_exact_prompt(self):
+        with contextlib.closing(sqlite3.connect(":memory:")) as db:
+            db.execute("CREATE TABLE thread_items(thread_id,turn_id,item_json,item_type,created_at_ms)")
+            envelope = f"<codex_delegation><source_thread_id>{THREAD}</source_thread_id><input>P &lt; Q</input></codex_delegation>"
+            item = dict(namespace="codex_app", name="send_message_to_thread", output=envelope)
+            for source, tool in ((THREAD, "read_thread"), ("other", "send_message_to_thread")):
+                db.execute("INSERT INTO thread_items VALUES(?,?,?,'functionCallOutput',1)",
+                           (source, "wrong", json.dumps(dict(item, name=tool))))
+            self.assertIsNone(receipt(db, THREAD, "P < Q"))
+            db.execute("INSERT INTO thread_items VALUES(?,?,?,'functionCallOutput',2)",
+                       (THREAD, "right", json.dumps(item)))
+            self.assertEqual(receipt(db, THREAD, "P < Q"), "right")
+            self.assertIsNone(receipt(db, THREAD, "P"))
 
     @patch.object(pbs_watch, "verify_project_thread")
     @patch.object(pbs_watch.shutil, "which", return_value="test-node.exe")

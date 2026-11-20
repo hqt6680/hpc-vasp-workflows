@@ -22,7 +22,7 @@ python scripts/pbs_watch.py status
 - 每次 SSH 最多查询 16 个作业，子进程输出上限 1 MiB。每条回传最多 16 个事件，投递子进程输出上限 16 KiB。超过上限的查询保留此前状态，回执不明确的投递保留为 `sending` 供核对。
 - 回传通过 Codex Desktop 本机 IPC 投给已登记聊天。已有活动轮时直接引导，空闲且仍由 Desktop 持有的聊天会直接启动下一轮。若 IPC 明确报告原聊天没有接收端，监听器通过 `codex://threads/<UUID>` 打开原聊天并重试同一事件，Desktop 可能切到该聊天。每个待回传事件只自动打开一次。接收端仍不可用时保留 `pending`，按原间隔重试。
 - 2026-11-13 Windows 托盘实测覆盖两种状态。活动聊天收到 `steered` 并保留原轮次 ID。空闲聊天在 21:55 收到 `started`，聊天记录确认测试消息只进入一次新轮次。空闲测试前后均由同一带代理的 Desktop 进程持有 IPC，没有排队、弹窗或新增 Desktop 进程。
-- Windows 计划任务直接运行 `pbs_watch.py`。正式回传调用与托盘实测相同的 `desktop_delivery.mjs`，只连接现有的 `codex-ipc`。本项目在发送前核对 IPC 所属 Desktop 的 `--proxy-server` 值。该实例不可用时，事件保留为本机 `pending`，按原间隔重试。
+- Windows 计划任务优先使用现有的 `codex-ipc`。当桌面端仅提供 `codex-app-tools` 管道时，监听器核验所属进程、Windows 会话和代理，再通过随 Desktop 安装的 MCP 服务调用 `send_message_to_thread`。它在原聊天记录中核对事件全文和接收轮次。活动轮收到事件时记为 `steered`，其他已核实的接收轮次记为 `received`。无可用通道时保留 `pending`，投递后回执不明时保留 `sending`。
 - Windows 通知启动的进程可能不经过 Codex 专用代理启动器。只用原来的代理启动器启动 Codex，回传验收以轮次回执和聊天记录为准。
 - `steered` 与 `started` 分别表示 Desktop 已确认引导或启动，`detail` 保存对应轮次 ID。旧版 `queued` 表示 CLI 接受了排队。处理事件后运行 `python scripts/pbs_watch.py ack <event_id>`。
 - 投递中断或回执不明时保留 `sending`。确认原聊天未收到后，再执行 `python scripts/pbs_watch.py retry <event_id>` 并启动监听。重试前核对 PBS 和算例作业记录。Desktop 更新后需复测本机 IPC 的兼容性。

@@ -15,7 +15,7 @@ DESKTOP = re.compile(
 )
 
 
-def pipe_owner():
+def pipe_owner(path=PIPE):
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
     kernel.CreateFileW.argtypes = [
         wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p,
@@ -25,7 +25,7 @@ def pipe_owner():
     kernel.GetNamedPipeServerProcessId.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.ULONG)]
     kernel.ProcessIdToSessionId.argtypes = [wintypes.DWORD, ctypes.POINTER(wintypes.DWORD)]
     kernel.CloseHandle.argtypes = [wintypes.HANDLE]
-    handle = kernel.CreateFileW(PIPE, 0xC0000000, 0, None, 3, 0, None)
+    handle = kernel.CreateFileW(path, 0xC0000000, 0, None, 3, 0, None)
     if handle in (None, ctypes.c_void_p(-1).value):
         return None
     try:
@@ -69,18 +69,35 @@ def proxy_matches(command_line, expected):
     return len(flags) == 1 and (flags[0][0] or flags[0][1]) == expected
 
 
-def verified_desktop(expected_proxy):
+def verified_desktop(expected_proxy, path=PIPE):
     if os.name != "nt":
         return None
     try:
-        pid = pipe_owner()
+        pid = pipe_owner(path)
         if pid is None:
             return None
         process = desktop_process(pid)
         if (process and DESKTOP.fullmatch(process.get("ExecutablePath") or "")
                 and proxy_matches(process.get("CommandLine") or "", expected_proxy)
-                and pipe_owner() == pid):
+                and pipe_owner(path) == pid):
             return pid
     except (OSError, ValueError, subprocess.SubprocessError):
         pass
+    return None
+
+
+def app_tools_pipe(expected_proxy):
+    if os.name != "nt":
+        return None
+    prefix = PIPE.rsplit("\\", 1)[0] + "\\"
+    try:
+        names = os.listdir(prefix)
+    except OSError:
+        return None
+    if any(name.lower() == "codex-ipc" for name in names):
+        return None
+    for name in names:
+        if re.fullmatch(r"codex-app-tools-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}", name):
+            if verified_desktop(expected_proxy, prefix + name):
+                return prefix + name
     return None
