@@ -24,7 +24,7 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 2026-11-20 已独立验收 `52590.master` 的 Γ/M DFPT。VASP 6.5.1、Phonopy 2.19.1，28 原子公度超胞、Γ 5×5×1 电子网格、`IBRION=8`、`EDIFF=1E−8`。基态达到电子阈值，12 个响应方向均完成。相同的原始和声学和则处理结果给出 Γ 点最低非平移模约 `+0.621891 THz`、M 点最低模约 `+1.567035 THz`。这两个点已通过，完整 q 网格稳定性仍待验收。结果入口为 `gamma/check/mix2e8/result.json`，优化结构为 `gamma/relax/mix2/CONTCAR`。
 
-下一步使用 `phon3/` 的 56 原子 2×2×1 超胞和 Γ 4×4×1 电子网格，先检验平衡点。该网格展开后对应母胞 Γ 8×8×1。`53525.master` 已提交到 `node06`，28 MPI ranks，walltime 8 小时，核对时为排队 Q。工作目录为 `phon3/eq/`，已登记本机 PBS 监听。此前 Γ/M 计算的参考最大残力约 `0.00143749 eV/Å`，完整谱阶段先按目标最大残力 `0.001 eV/Å` 核对平衡超胞，必要时继续优化。
+下一步使用 `phon3/` 的 56 原子 2×2×1 超胞和 Γ 4×4×1 电子网格，先检验平衡点。该网格展开后对应母胞 Γ 8×8×1。11 月 20 日 20:06 核对时，`53525.master` 正在 `node06` 以 28 MPI ranks 运行，原作业时限已延至 12 小时。工作目录为 `phon3/eq/`，已登记本机 PBS 监听。后续提交按项目规则默认省略 `walltime`。此前 Γ/M 计算的参考最大残力约 `0.00143749 eV/Å`，完整谱阶段先按目标最大残力 `0.001 eV/Å` 核对平衡超胞，必要时继续优化。
 
 回传后通过 SSH 重新核验 PBS 和 `phon3/eq/` 输出，再在算例根运行以下验收。运行环境为 `/public/home/zjt/anaconda3/envs/python3.10/bin/python`，依赖 Phonopy 2.19.1、NumPy、spglib 和 Matplotlib。
 
@@ -42,8 +42,9 @@ PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
 | `Master/K2CrF4.md` | `c4bd21b34a0daf92e05f3c6df2d43122fe49ec2a0b2d3403c84e4edc79d0951c` |
 | `Master/phonopy.md` | `ac3754703d81e32a8a980f9dbb4f48df7533d66c36db8c80cec9d70185c19984` |
 | `Master/case_index.md` | `99e539ac4bb839b1fb67a3e0c4c839706171710524aeb0648cbce46d2cc67c35` |
-| `Materials/examples/K2CrF4/workflow.md` | `c2cf4bef07cbab60d3bb6bc9815f565a708d0cf573677633c7675827594e18f7` |
+| `Master/vasp_environment.md` | `75d2c6ee476a59ec0ac70324b2bb57a6c85050dd7785360ef809ae5ddc22f4b4` |
+| `Materials/examples/K2CrF4/workflow.md` | `210ffa4229b9d17a296d7ad97a44af610344a789a0d81210421c667e4c97f855` |
 | `Materials/examples/K2CrF4/gamma/hessian.py` | `ce4ff3ffbd39a86dc542dd67fd1d889d80626b574a758e4fc4294899cc13a7cf` |
 | `Materials/examples/K2CrF4/gamma/hessian.pbs` | `933630f2ea55b70cf4b7eb2084e2f3b29882283a199686ff34c1e5fd8a734497` |
 | `Materials/examples/K2CrF4/phon3/phon3.py` | `75a727b0e28dca2bbacac6f04a42bf5910ca81139c1f32abd3c90192f49a1d94` |
-| `Materials/examples/K2CrF4/phon3/run.pbs` | `83dd407cd1f10a40283996145adae106cf951ac380dd03133bada1748970bd19` |
+| `Materials/examples/K2CrF4/phon3/run.pbs` | `e7b32812f30b755661fc5d882fe889e188f3ce8c9e496d7f7a4520e259754cf0` |
