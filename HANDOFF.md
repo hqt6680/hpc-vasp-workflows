@@ -41,7 +41,7 @@ PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
 
 11 月 23 日复核，Γ/X `53592.master`（node06）验收通过，12 个响应收敛，最大残力 0.000788 eV/Å。Γ/M `53594.master`（node14）的基态、12 个响应及 84×84 Hessian 已通过复核。用户接受该结果的最大残力 0.001511 eV/Å（常规门槛 0.001 eV/Å）。`phon3/m/result.json` 记录实测值和授权，`small.py` 仅对该 Γ/M 输出识别此例外。两组的实际电子 k 点与权重已核对。此前撤回的 `53593.master` 日志在 `phon3/m/stopped-53593/`。
 
-Γ/Y `53804.master` 已提交 node14，28 核，已登记原聊天回传。回传后从算例根执行 `"$PY" -B phon3/small.py validate y`，通过后合并三个分支。
+Γ/Y `53804.master` 已从 node14 队列改派到 node12，11 月 23 日 11:25 在 28 核上启动，沿用原作业号及回传登记。回传后从算例根执行 `"$PY" -B phon3/small.py validate y`，通过后合并三个分支。
 
 全部结束后在算例根执行 `"$PY" -B phon3/small.py merge`。逐组验收基态和各响应、参考残力、总力漂移、磁态和电子网格。复核三份 Γ 矩阵的一致性和四点傅里叶回算误差，检查 `phon3/spectrum-small/` 的 Γ–X–M–Y–Γ–M 色散、40×40×1 网格及施加声学和则前后的低频振型，通过后更新 Master。
 
@@ -56,7 +56,7 @@ PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
 | `Master/relax+scf.md` | `f39402427724e60c7c7384817f963e6234413ef40e83990d2b359844fc52ec7d` |
 | `Master/case_index.md` | `99e539ac4bb839b1fb67a3e0c4c839706171710524aeb0648cbce46d2cc67c35` |
 | `Master/vasp_environment.md` | `46e8f5ef61f7ebc122d494cf744a4e20a69e27acd0e7a8192c58c13a4eaff850` |
-| `Materials/examples/K2CrF4/workflow.md` | `467d9aee360ede42f3af019ae22d850799a83c8aa2b41bcd08ee9b500e76ead2` |
+| `Materials/examples/K2CrF4/workflow.md` | `005bec88a6e70446a60c26cc033f85616174cc1e8464562954fe51c694f5945e` |
 | `Materials/examples/K2CrF4/gamma/hessian.py` | `ce4ff3ffbd39a86dc542dd67fd1d889d80626b574a758e4fc4294899cc13a7cf` |
 | `Materials/examples/K2CrF4/gamma/hessian.pbs` | `933630f2ea55b70cf4b7eb2084e2f3b29882283a199686ff34c1e5fd8a734497` |
 | `Materials/examples/K2CrF4/phon3/phon3.py` | `0d64f90c7815aa768cb32bff124218b7b19d683397e6bc2bff27a9c55aa21c20` |
