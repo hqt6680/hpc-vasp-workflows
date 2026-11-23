@@ -16,6 +16,8 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 ## 状态和回退
 
+2026-11-23，node12 根分区释放空间后使用率降至 3%，已恢复常规选用。定向 PBS 作业 `53808.master` 通过本地盘读写、共享盘写入、双进程 Intel MPI 通信及标准输出和错误回传验证。记录位于服务器 `hqt/.codex_reports/pbs/node12_disk_20261123/README.md`。
+
 2026-11-20 23:10，旧 IPC 管道缺失时，计划任务通过 Desktop App Tools 把真实 PBS 事件 53522 送入原聊天的活动轮次。监听器核对轮次和完整消息，记录 `steered`，经 SSH 验收后已 `acked`。模拟事件也已验证活动聊天接收和空闲聊天自动开启新轮次，两组各收到一条，排队均为零。项目监听器和技能包共用 [desktop_followup.py](scripts/desktop_followup.py) 选择通道并读取回执。更新后重启同一计划任务即可加载脚本。
 
 2026-11-20 验证通过 42 项 Python 测试、6 项 Node.js 测试和技能包打包。在 Windows 计划任务上，真实待回传事件触发原聊天重开，随后收到 `started` 回执。更新脚本后重启 `CodexVaspPbsWatch` 计划任务，按真实事件的 `started` 或 `steered` 回执确认回传。回退可检出 `5e3eec6` 上的相关监听脚本再重启任务，保留 `%LOCALAPPDATA%/CodexVaspPbs` 的数据库。
