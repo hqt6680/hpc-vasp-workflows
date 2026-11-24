@@ -1,23 +1,20 @@
 # 在 Windows 上用 agent 做 VASP 计算
 
-你可以在自己的 Windows 项目里告诉 agent 想算什么。它会通过 SSH 去组里的服务器查教程、准备输入，再按你的要求把作业交给 PBS。结构、赝势和计算结果都留在服务器上。
+你可以在自己的 Windows Codex IDE 项目里告诉 agent 想算什么。它会通过 SSH 去组里的服务器查教程、准备输入，再按你的要求把作业交给 PBS 并设置回传检测脚。计算结果都留在服务器上。
 
-## 第一次用
+## 部署方法
 
-在 Windows 上新建一个空文件夹，用 Codex 打开它。复制本仓库的 Git 链接，把下面这句话发给 agent 即可。
+在 Windows Codex IDE 上新建一个专门用来做服务器VASP计算的项目，设置完全访问权限，把下面这句话发给 agent 即可。
 
-> 请从〈粘贴仓库链接〉把 VASP 工作流部署到当前 Windows 文件夹。问我需要哪些信息，装好后帮我确认能读到服务器上的 AICC。
+> 请从[〈粘贴仓库链接〉](https://github.com/hqt6680/hpc-vasp-workflows)把 VASP 工作流部署到当前 Windows 文件夹。问我需要哪些信息，装好后帮我确认能读到服务器上的 AICC ，如果开启回传脚本，那么顺便帮我测试回传脚本能否正常运行。
 
 准备好平时登录集群用的 **SSH 别名**和**自己的服务器工作目录**。Windows 需要 Python 3.10 或更高版本和 OpenSSH 客户端，使用仓库链接还需要 Git 和仓库读取权限。当前安装器适配组内的 PBS 集群。如果你习惯用 VS Code 看服务器文件，在 Remote - SSH 里选同一个别名，再打开自己的服务器工作目录即可。
 
 部署时还有两个选择，可以分开回答。
 
-- **要用组内默认知识库吗？** 启用后，工作目录里的 `knowledge/default/` 通向最新教程，`knowledge/examples/` 通向原始算例。组里更新后，下次查阅就能读到。
-- **现在有想让 agent 学习的目录吗？** 可以给它一个自己做过的算例，让它把参数怎么选、结果怎么看整理到 `knowledge/personal/`。暂时想不到就答“以后再说”，之后随时可以补。
+- **要用组内默认知识库吗？** 启用后，工作目录里的 `knowledge/default/` 通向简单通用教程，`knowledge/examples/` 通向原始算例。这部分知识库实时更新，更新后，下次查阅就能读到。
+- **有自己要算的内容？** 可以给它一个自己做过的典型算例，让它把参数怎么选、结果怎么看整理到 `knowledge/personal/`。暂时想不到就答“以后再说”，之后随时可以补。
 
-## AICC 装在哪里？
-
-Windows 项目安装的技能是 `.agents/skills/vasp-pbs/`。**AICC（AI Computational Chemist）在服务器上共用一份**。安装器在本机 `.vasp-local/knowledge.md` 记下连接信息和 AICC 位置，并在你的服务器工作目录写入或合并 `AGENTS.md`。个人工作目录里的这份规则指向共享安装。agent 通过 SSH 读取 AICC 的站点说明和本次任务用到的技能。即使跳过默认知识库，也能使用 AICC。
 
 ## 试一次计算
 
@@ -32,4 +29,3 @@ Windows 项目安装的技能是 `.agents/skills/vasp-pbs/`。**AICC（AI Comput
 
 如果想在作业结束时收到原聊天的提醒，可以另外启用 Windows 监听器，需要 Node.js 18 或更高版本和已登录的 Codex Desktop。以后想清理这台电脑上的部署，直接在项目里说“恢复本机部署”。个人笔记和服务器上的作业、知识库都会保留。[部署、监听与恢复说明](share/vasp-pbs/references/setup.md)
 
-也可以从[最新发行版](../../releases/latest)下载 `vasp-pbs-skill.zip`。维护技能包时，在仓库根运行 `python scripts/package_vasp_pbs.py <输出路径>`。
