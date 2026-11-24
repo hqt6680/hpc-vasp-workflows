@@ -1,44 +1,35 @@
-# VASP / PBS 工作流与技能包
+# 在 Windows 上用 agent 做 VASP 计算
 
-| 入口 | 用途 |
-| --- | --- |
-| [scripts/](scripts/) | PBS 监听、Codex Desktop 回传与本机工作流辅助 |
-| [share/vasp-pbs/SKILL.md](share/vasp-pbs/SKILL.md) | VASP / PBS 技能、资料与标准算例入口 |
-| [最新技能安装包](https://github.com/hqt6680/hpc-vasp-workflows/releases/latest) | 下载 `vasp-pbs-skill.zip` 后按包内说明加载 |
+你可以在自己的 Windows 项目里告诉 agent 想算什么。它会通过 SSH 去组里的服务器查教程、准备输入，再按你的要求把作业交给 PBS。结构、赝势和计算结果都留在服务器上。
 
-在新的 Windows 项目中，部署时先读[知识库设置](share/vasp-pbs/references/setup.md#知识库设置)，分别询问是否启用共享知识库和是否现在学习个人目录。每次查阅从[服务器入口](share/vasp-pbs/references/group-library.md)获取最新教程和算例。LLG、MC 和 TB2J 的公共脚本在服务器 `Master/Simulation/`。
+## 第一次用
 
-重新打包运行 `python scripts/package_vasp_pbs.py <输出路径>`。技能包提供知识库读取工具和 PBS 监听脚本。VASP、赝势、知识库正文及算例数据留在服务器。
+在 Windows 上新建一个空文件夹，用 Codex 打开它。复制本仓库的 Git 链接，把下面这句话发给 agent 即可。
 
-本机 PBS 监听的安装、验证和回退见 [HANDOFF.md](HANDOFF.md)。
+> 请从〈粘贴仓库链接〉把 VASP 工作流部署到当前 Windows 文件夹。问我需要哪些信息，装好后帮我确认能读到服务器上的 AICC。
 
-组员可以对 agent 说“恢复本机部署”。命令和旧版恢复范围见[恢复本机](share/vasp-pbs/references/setup.md#恢复本机)。
+准备好平时登录集群用的 **SSH 别名**和**自己的服务器工作目录**。Windows 需要 Python 3.10 或更高版本和 OpenSSH 客户端，使用仓库链接还需要 Git 和仓库读取权限。当前安装器适配组内的 PBS 集群。如果你习惯用 VS Code 看服务器文件，在 Remote - SSH 里选同一个别名，再打开自己的服务器工作目录即可。
 
-## 在 VS Code 中连接 zjt
+部署时还有两个选择，可以分开回答。
 
-Windows 上的 VS Code 和 PowerShell 共用 `%USERPROFILE%\.ssh\config`。在 Remote - SSH 中选择内网地址 `10.100.0.222`，登录账号为 `zjt`。
+- **要用组内默认知识库吗？** 启用后，工作目录里的 `knowledge/default/` 通向最新教程，`knowledge/examples/` 通向原始算例。组里更新后，下次查阅就能读到。
+- **现在有想让 agent 学习的目录吗？** 可以给它一个自己做过的算例，让它把参数怎么选、结果怎么看整理到 `knowledge/personal/`。暂时想不到就答“以后再说”，之后随时可以补。
 
-```sshconfig
-Host 10.100.0.222
-    HostName 10.100.0.222
-    User zjt
-    Port 22
-```
+## AICC 装在哪里？
 
-**使用远程终端。** 在 VS Code 的“终端 → 新建终端”中运行 `ssh 10.100.0.222`。使用密码认证时，在提示处输入服务器密码。使用密钥认证时，VS Code 和终端都可以通过 Windows 的 `ssh-agent` 登录。登录后运行以下命令进入项目并核对环境。
+Windows 项目安装的技能是 `.agents/skills/vasp-pbs/`。**AICC（AI Computational Chemist）在服务器上共用一份**。安装器在本机 `.vasp-local/knowledge.md` 记下连接信息和 AICC 位置，并在你的服务器工作目录写入或合并 `AGENTS.md`。个人工作目录里的这份规则指向共享安装。agent 通过 SSH 读取 AICC 的站点说明和本次任务用到的技能。即使跳过默认知识库，也能使用 AICC。
 
-```bash
-cd /public/home/zjt/task/now/hqt && whoami && hostname && pwd -P && cat AGENTS.md
-```
+## 试一次计算
 
-**打开远程文件树。** 在 VS Code 中按 `Ctrl+Shift+P`，运行 `Remote-SSH: Connect to Host...`，选择 `10.100.0.222`。左下角显示 `SSH: 10.100.0.222` 后，选择“文件 → 打开文件夹”，输入 `/public/home/zjt/task/now/hqt`。也可以从本机 PowerShell 直接打开该目录。
+比如，你已经把结构放进自己的服务器目录，可以这样开口。
 
-```powershell
-code --new-window --folder-uri "vscode-remote://ssh-remote+10.100.0.222/public/home/zjt/task/now/hqt"
-```
+> 我的 POSCAR 在〈服务器算例目录〉。请参考组里已验收的能带算例，帮我准备一套无 SOC 的自洽和能带输入，解释一下 k 点怎么选，先做到预检。
 
-**本站的版本限制。** 内网入口 `master` 实测为 CentOS 7、内核 3.10、glibc 2.17。VS Code Server 1.147.0 使用公共 CP2K 目录 `/public/software/cp2k-2023/cp2k-2023.1/usr/lib/x86_64-linux-gnu` 提供的 glibc 2.35 和 libstdc++。已在这个版本验证 Remote - SSH 连接、远程项目文件、终端和搜索工具。宿主内核仍低于微软列出的 4.18 基线。[微软的 Linux 运行要求](https://code.visualstudio.com/docs/remote/faq#_can-i-run-vs-code-server-on-older-linux-distributions)
+1. **选参考。** agent 先读你的工作目录规则。启用默认库时，它会按目标物理量、结构和磁态选已验收的算例，读对应的 `workflow.md`。遇到自洽接能带这样的多阶段任务，还会先读 AICC 的 `comp-chem-workflow`，再为你的材料准备输入。
+2. **检查输入。** agent 读取 AICC 的 `tools/vasp/SKILL.md`，在算例目录运行 `check_inputs.py`。例如，元素顺序要和 POTCAR 对上，共线磁矩与非共线磁矩的分量数也要分别核对。做到这里就可以先看输入和预检提示。
+3. **提交计算。** 你要求提交后，agent 按 AICC 的 `tools/hpc-submit/SKILL.md` 核对资源，用 `qsub` 提交当前阶段的 PBS 脚本。组内的新算例使用 VASP 6.5.1。共线计算选 `std.pbs`，经 MPI 启动 `$HOME/bin/vasp6.5-wannier`。SOC 或非共线计算选 `ncl.pbs`，启动 `$HOME/bin/vasp6.5so-wannier`。
+4. **验收结果。** 作业结束后，agent 用 AICC 的 `parse_vasp.py` 从已有输出提取能量、力等信息，结合本次目标检查收敛。例如，做能带前要先确认自洽阶段的电荷密度可用，再接下一步。
 
-本机沿用 `remote.SSH.useExecServer = false`。已适配的服务端位于 `~/.vscode-server/bin/8a14f0cc1b08d531eb83255ea3764ae22aa932b5`，其 Node 使用上述目录中的动态加载器和库。桌面版更新后，可用 `code --version` 查看新的提交号；Remote - SSH 会按新提交号选择服务端目录，需要对新版本重新验证。若日志停在 `Copying file to remote` 后的密码提示，在 VS Code 弹窗输入 SSH 密码即可继续上传。
+如果想在作业结束时收到原聊天的提醒，可以另外启用 Windows 监听器，需要 Node.js 18 或更高版本和已登录的 Codex Desktop。以后想清理这台电脑上的部署，直接在项目里说“恢复本机部署”。个人笔记和服务器上的作业、知识库都会保留。[部署、监听与恢复说明](share/vasp-pbs/references/setup.md)
 
-首次连接成功、重连时又弹出密码框，可查看“输出 → Remote - SSH”。如果看到 `Checking server status` 后紧跟 `wget: unrecognized option '--no-config'`，在本机 VS Code 的用户设置中启用 `remote.SSH.useCurlAndWgetConfigurationFiles` 后重连。该设置让扩展使用集群旧版 `wget` 支持的参数，适用于此客户端的所有 Remote - SSH 主机。
+也可以从[最新发行版](../../releases/latest)下载 `vasp-pbs-skill.zip`。维护技能包时，在仓库根运行 `python scripts/package_vasp_pbs.py <输出路径>`。
