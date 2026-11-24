@@ -30,7 +30,7 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 ## 组内工作区与服务器资料
 
-2026-11-24 起，组内默认库与算例通过 [SSH 读取入口](share/vasp-pbs/references/group-library.md)实时访问。算例交接时从服务器读取当前 workflow.md 和 PBS 作业表。K₂CrF₄ 的入口为 `Materials/examples/K2CrF4/workflow.md`。发行包提供读取工具、个人工作区初始化和监听器。
+组内默认库与算例通过 [SSH 读取入口](share/vasp-pbs/references/group-library.md)实时访问。新算例从 `Master/README.md` 选方法，再到 `Master/case_index.md` 找对应的结构、物理量和结果文件。四个标准算例各自的 `workflow.md` 记录已验收的输入、关键参数和结果。例如 K₂CrF₄ 按结构相区分完整声子谱和指定 q 点的验证。尚待验收的条目列在索引的“待建设”，运行交接查算例末尾的 PBS 作业表。发行包提供读取工具、个人工作区初始化和监听器。
 
 技能包版本 `vasp-pbs-live-2026.11.24.1`。默认知识库入口为 `knowledge/default/`。在 zjt 隔离工作根验证了新建、从旧版 `knowledge/group/` 迁移、重复部署和关闭默认库，并验证同名用户目录及个人笔记得到保留。Windows 通过 SSH 枚举到四个标准算例，两个站点文档和四份算例流程的读取结果与服务器 SHA-256 一致。
 
