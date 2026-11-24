@@ -9,7 +9,9 @@ description: 部署 VASP 工作区，选择组内知识库和 AICC，按用户�
 
 首次部署按[知识库设置](references/setup.md#知识库设置)分别询问是否使用默认组内知识库、是否现在指定个人学习目录，然后执行 `scripts/setup_workspace.py` 初始化指定的工作根。以后对话先读取当前 Windows 项目的 `.vasp-local/knowledge.md`，进入已配置的远程工作根读 `AGENTS.md`。收到“学习这个目录”时追加到 `knowledge/personal/`。
 
-使用默认库时，按[实时读取组内知识库](references/group-library.md)从服务器选择教程、枚举算例并读取其流程文档。AICC 提供准备、预检和验收工具。普通计算使用本人的远程工作目录，按实际输入记录版本、参数和与示例的差异。
+使用默认库时，按[SSH 读取入口](references/group-library.md)从 `Master/README.md` 选方法，在 `Master/case_index.md` 按目标物理量、结构和磁态选已验收算例。读取该例的 `workflow.md`，在用户工作目录按“输入与关键参数 → 执行 → 验收 → 结果文件”复算。用 AICC 做预检和验收。
+
+维护参考文档时，只写可复用的标准流程和实测参数。未验收条目列入“待建设”。查询运行或续算状态时读算例的 PBS 作业表。
 
 ## 使用项目监听器
 

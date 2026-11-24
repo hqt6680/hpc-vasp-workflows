@@ -4,11 +4,12 @@
 
 ```powershell
 python scripts/read_group_library.py --ssh $aliasName
-python scripts/read_group_library.py --ssh $aliasName Master/vasp_environment.md
+python scripts/read_group_library.py --ssh $aliasName Master/case_index.md
+python scripts/read_group_library.py --ssh $aliasName Materials/examples/K2CrF4/workflow.md
 ```
 
-- **找方法**。首条命令实时读取 `Master/README.md`。根据它的链接选择本次教程，按第二条命令的格式读取。LLG、MC 和 TB2J 的公共脚本在服务器 `Master/Simulation/`。
-- **找算例**。首条命令同时枚举服务器 `Materials/examples/` 的当前目录和各例的 `workflow.md`。将返回的实际相对路径传给读取命令，再按需通过 SSH 查原始输入、输出或作业日志。
+- 首条命令读取方法索引，并列出可用算例。LLG、MC 和 TB2J 公共脚本在服务器 `Master/Simulation/`。
+- 第二条命令列出已验收结果及其适用范围。第三条以 K₂CrF₄ 为例；读取其他算例时替换为索引给出的相对路径。
 - **用 AICC**。按需读取 `.auto-computational-chemist/AGENTS.md`、`.auto-computational-chemist/site-zjt.md` 和所选工具的 `SKILL.md`。计算在用户自己的工作目录运行。
 
 选其他服务器或个人资料目录时，通过用户已配置的 SSH 别名读取其指定路径。连接失败或资料无权读取时，报告具体缺项，恢复连接后重新读取。
