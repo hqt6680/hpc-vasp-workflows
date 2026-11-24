@@ -2,7 +2,7 @@
 
 ## 安装技能
 
-从 Git 链接部署时，在克隆目录执行 `python scripts/package_vasp_pbs.py <临时目录>/vasp-pbs-skill.zip`。解压后把 `vasp-pbs/` 放到组员 Windows 项目的 `.agents/skills/`。使用发行包时从解压步骤开始。将包中 `assets/project/AGENTS.md` 的知识库约定合并到组员项目已有规则，首次部署就继续完成下面两项选择。新对话可用 `$vasp-pbs` 调用。
+从 Git 链接部署时，在项目外的临时目录克隆并运行 `python scripts/package_vasp_pbs.py <临时目录>/vasp-pbs-skill.zip`。使用发行包时直接解压到临时目录。先完成下面两项选择，再从解压包执行初始化。程序负责复制技能和合并规则，并在写入前登记本机文件的归属。agent 完成部署后清理本次创建的临时克隆、压缩包和解压目录。新对话可用 `$vasp-pbs` 调用。
 
 安装后先做下面两项选择。查阅共享内容使用[服务器知识库入口](group-library.md)，待需要作业回传时再配置监听器。
 
@@ -29,8 +29,8 @@ python scripts/setup_workspace.py --ssh $aliasName --project $windowsProject --w
 
 ## 配置项目监听器
 
-1. 在 Windows 的 VASP 工作区打开 Codex Desktop，确认有 Python 3.10 或更高版本、Node.js 和 OpenSSH 客户端。把技能目录内 `assets/project/scripts/` 的文件复制到该工作区的 `scripts/`。将 `assets/project/AGENTS.md` 的回传规则合并到项目根的 `AGENTS.md`，已有同名文件时保留本地站点规则。
-2. 将 `scripts/pbs_watch.config.example.json` 复制为 `scripts/pbs_watch.config.json`，按接收者实际站点填写下列字段。真实连接信息由接收者在本机维护。共享时只保留示例，避免复制 SSH 私钥、口令、代理凭据、聊天 UUID 和监听状态数据库。
+1. 在 Windows 的 VASP 工作区打开 Codex Desktop，确认有 Python 3.10 或更高版本、Node.js 和 OpenSSH 客户端。在技能目录执行 `python -B scripts/local_workspace.py install --project "$windowsProject" --watcher`，由安装器写入及登记项目监听脚本和回传规则。
+2. 编辑程序准备的 `scripts/pbs_watch.config.json`，按接收者实际站点填写下列字段。真实连接信息由接收者在本机维护。
 
 | 字段 | 填写内容 |
 | --- | --- |
@@ -70,3 +70,15 @@ python scripts/pbs_watch.py status
 - `sending` 表示投递结果未确认。先核对原聊天内容、PBS 记录和算例作业记录。确认未收到且需要重发时，用 `python scripts/pbs_watch.py retry <event_id>`，再用 `-Action Start`。
 
 首次交付分别验证 PBS 查询、向实际项目聊天投递及计算验收。Desktop 更新后复测 IPC。遇到不兼容时，可通过 `status` 查本地记录，再经 SSH 手动核验当前阶段。
+
+## 恢复本机
+
+用户要求恢复或卸载当前 Windows 部署时，在 **Windows 项目根** 执行下列命令。恢复程序也可从新解压的发行包运行，将 `--project` 指向原 Windows 项目。
+
+```powershell
+python -B .agents/skills/vasp-pbs/scripts/local_workspace.py restore --project .
+```
+
+恢复在本机完成。程序停止并注销本次部署创建的项目计划任务，删除该项目新增的监听数据库、日志、缓存、配置、技能和脚本，移除托管的 Markdown 段及空目录。部署前已有的文件与目录、托管段以外的笔记和其他项目的任务会保留。已修改的工具文件会逐项报告。远端作业继续运行，删除本机监听记录后该项目停止回传。
+
+旧版本请从新版发行包调用恢复命令。对于缺少安装清单的工作区，程序按已发布文件指纹和托管标记识别旧安装。手工改写且无法识别的文件保留在原处。

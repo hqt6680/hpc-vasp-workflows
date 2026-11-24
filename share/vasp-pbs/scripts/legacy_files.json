@@ -1,0 +1,189 @@
+{
+  ".agents/skills/vasp-pbs/README.md": [
+    "2ab2874b7795cdaeb20a8c218954bf753d08d41ce350f10f5887bb2848450304",
+    "159970a14232e5df848028122fabdc589fcad6ab98a84e72837c9c2fbac1dd93"
+  ],
+  ".agents/skills/vasp-pbs/SKILL.md": [
+    "83aee3acf995f2a63756529931e9a11d9f8afad5616fe76759d841de7bb341ea",
+    "6a66d0d27c43d9d74057bcfde2fc17f6710110e907cbca33f541331dd5a8a3f5",
+    "518ae12ce096004fe88e3b0376d3fd8f06da349b712e8186030f740d18bce979"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/AGENTS.md": [
+    "83a531aa7271931037654fa549d58a3ee1f232dfc098f3ba5d04317c049afab1",
+    "969638e2dba3ae93903c5802a96734b3b3f796a238da20c4d52823244468cf06"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/scripts/README.md": [
+    "ce819c3d828c21d4d89e7dc6358123da06351c380c7171638a651246128e3bd7",
+    "ec8ef00d0e1ebbd6e93b0bac06ed15967e4f571ba219b88f4b30ef823d5ce2f1"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/scripts/bounded_process.py": [
+    "210a03bd366ef36450a5ded5e076b7f68e5c4dff7c8d16684b479a78eea3f5fd"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/scripts/desktop_delivery.mjs": [
+    "352f50fe2aac04de7026f36bfbb663b0ff23fe08a40413266eebf682e4425a33",
+    "d9523a680ea470b111435bf8896325fbfff8df77c343051f13bdb232f7e3bbef"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/scripts/desktop_followup.py": [
+    "2e4b8d8222727470e518f2d1f81b386fcc29032e325c7303515cb0482fb46935"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/scripts/desktop_owner.py": [
+    "0bbe301a960b928ab1882cc95ce2d061bf095f0a5d4f72dc7a1a0f78f1371999",
+    "445435378417e2bca0d36e6a22aedc448059b13eeac3aee9562af5dcc4aac3f4"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/scripts/install_pbs_watch.ps1": [
+    "1f124cff6f60c81721b873dcc037f1b52b08fe9f866a27d3f51b653a2411f8cc"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/scripts/pbs_watch.config.example.json": [
+    "75cf35b79819f7d9dcd83465d8cd0005c620dd2ed545fac5455f486e0516259a"
+  ],
+  ".agents/skills/vasp-pbs/assets/project/scripts/pbs_watch.py": [
+    "1b23807fd93d696089f2ca64f0521e9285c0921d510f71e2391a95f76239dc83",
+    "f0ab049453760fa2dd32a6b966f95e539c8497e70170a4adcf54ee6230fa9074"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/K2CrF4.md": [
+    "e86316de1e1661f6df0786e5d28b4bf4dba8784cb28c6d835cb369baa8ba5090"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/README.md": [
+    "76d22429c8f4059c6ed4c54ecb97c128f0af289adf9b9e73f4e49f5ab1cc48b7"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/Simulation/README.md": [
+    "cf5fc0a994ab209e93c417799aabfeaa8eb18fb854e3d92f493d8f2b37c89544"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/U_cal.md": [
+    "9eb4ef89df4a655ea1ec643eafd5df2f0c13f3074ba93aa3a4d08bddc22f47fd"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/band_dos.md": [
+    "aa5dd1df625fbbcb1080b14d3bf476a94fa5fb11afcab516b02221a818a36a90"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/case_index.md": [
+    "b63f8ffdecb8c687bfc5d23413a61e35ac05736ee3a2465dccf46b1ae9dc78de"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/evidence/README.md": [
+    "90c18336da1380f651d60297ea1d7122b4d1ac96384d194b014b18d082fa4066"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/evidence/crpa-audit.txt": [
+    "c004ac7b35954c16c8fe6dc9d98e45cd609bb757a117cb29226648645be7b29c"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/evidence/mae-audit.txt": [
+    "daff60305d9506a2edced3a16d446349778619432e8d0875fd002d71dbe19a30"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/evidence/spin-dipole-audit.txt": [
+    "9f802d27b57732ee639fc4f5ea563247779b4bbdcb67cea320dd39717bbe2d2b"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/magnetism.md": [
+    "3d18f9b9a358769da1b065ef1096f1441120814aeec9cd2568cb6db390902c2c"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/phonopy.md": [
+    "943ef6fb47d2edf402fbf4f3ae71036bf259bc5d789995716a89295bff35de6e"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/relax+scf.md": [
+    "ab3f23ded740a41ebfacf247369f77938198db39eb5ca12f56021495ccfa7ad8"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/spin_dipole.md": [
+    "dec264b8bc52c12f533e8857d6a43281ed24a2ff02f5b25a9f5802d13abb3b84"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/spin_simulation.md": [
+    "e247ab7362ee8ba8454d2b063d4092fd4eff37992a48f4a76ff88bdc606d4af6"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/tb2j.md": [
+    "e94c13d772583e27dce2f1259ed8b0e391169e9cf41af6272bf605f011dac4f5"
+  ],
+  ".agents/skills/vasp-pbs/references/Master/vasp_environment.md": [
+    "1a07622ab34997411740919d11814b6ff428731c72bba5b167e8913033b8968a"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/audit/history.md": [
+    "6d71d21f8298d466fc14f94c1880fd64571e5c50ffe8eba2f679a281747bd836"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/audit/history_merged_n180.csv": [
+    "3ec093e1b4ae6120c0f058279ad75e0a19a340966a59a2403af837adc37d8048"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/audit/history_merged_t150k51.csv": [
+    "11e1745923ae2cef30c1ce9e00953f300d09d4736f430037d106d51bb1c4862b"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/audit/soc_band_overlay.pdf": [
+    "1170751993c20cc9586a3ebe46cbae294271b836ca5a9831dcd94f37a2940868"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/audit/summary.md": [
+    "1a2356c3c67cf55f5b66ae8f16f44e418b371d7bc5474937b9df22b6afbef2a3"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/check_tb2j_exchange.py": [
+    "2ccf24c27d7ca473a683340d5d9afca7aef62cb6458fbc2716afb73451902b79"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/check_wannier_bands.py": [
+    "9d4815db8ee0ab0196b2ff4bca11a72e8687c5bb5dec4db2a6f1916583577b3c"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/compare_tb2j_history.py": [
+    "09478256349fe59566edc469788d628d7513e3294e8d9e5cbbc6f6a389d658bb"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/merged/n180/bonds.csv": [
+    "7c90d05aa3b39eb7c251a4ff4a7d2aca5d9bfbeb6fe3317392b42c7f5e2fd6ac"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/merged/t150k51/bonds.csv": [
+    "c50e37fa3b9f3e788bc58ae5b727989643f1f761c02b69a81a746eca548b0c2c"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/prepare_tb2j_hr.py": [
+    "5263886957a7a31284bce3381d272655e148f58d759ea147f42c4b015608d56e"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/run_tb2j.py": [
+    "72db4967ff96cab3d1d0cfab9cef007d0a241b4cff9e29b6ece5ff909274a31b"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/tb2j-requirements.txt": [
+    "0c713382f1803e70a4c74fb52cd05330e1c1fdd1e3236e3d31e7e5560af2171e"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/windows.py": [
+    "5b4dd1156c923ceb216938e3d92daa7151a345ffb7bd409be352348ca9487b77"
+  ],
+  ".agents/skills/vasp-pbs/references/Materials/test/tb2j/workflow.md": [
+    "05a44589108b4e96b3049c49c713bea43db9bc55f451bdea2b53654c0abaccf0"
+  ],
+  ".agents/skills/vasp-pbs/references/group-library.md": [
+    "2512c56d265d45cabda9b106fd182dffee71d03affb005ea0ed84b2017bf768e",
+    "3e1f999f624d048b597022dc7c0014e69eec5599cc36d02d056d7b416e08ba15"
+  ],
+  ".agents/skills/vasp-pbs/references/setup.md": [
+    "6898bdbc48c142736b69c2fb595499faefb17ce351e1762b8f8a2f97021fc926",
+    "3df163824c098fb07a0a9d98bf1ece1a454ff0b0fb5c4308ca0808684c4c48ac",
+    "db89cedfbfdd631b53a0f5b90c6ec49c6107e6a841e8dae96034840194d796b5"
+  ],
+  ".agents/skills/vasp-pbs/references/software/vasp-6.5.1/examples/ncl.pbs": [
+    "0b428bf1747e3b7f5b4eaf6b28bd2539b6e7080d784b83418273437ade5c4e4f"
+  ],
+  ".agents/skills/vasp-pbs/references/software/vasp-6.5.1/examples/std.pbs": [
+    "32f3d0fbd447807aa6d09c3831663f954c05cfeeed9897ca7d021568811d33e7"
+  ],
+  ".agents/skills/vasp-pbs/scripts/read_group_library.py": [
+    "57e5432755d88390f7776f037aa03159e837b8b0e4630e2678326c9f055f8bd6"
+  ],
+  ".agents/skills/vasp-pbs/scripts/setup_workspace.py": [
+    "edcdd471937959fe8583878902c32d2095ab84de7e983f43ee78796b0dce218d",
+    "f0827021b6f421fa839d13b49f5d255fb2385c672b5e27f026a32098a9284343"
+  ],
+  "scripts/README.md": [
+    "ce819c3d828c21d4d89e7dc6358123da06351c380c7171638a651246128e3bd7",
+    "ec8ef00d0e1ebbd6e93b0bac06ed15967e4f571ba219b88f4b30ef823d5ce2f1"
+  ],
+  "scripts/bounded_process.py": [
+    "210a03bd366ef36450a5ded5e076b7f68e5c4dff7c8d16684b479a78eea3f5fd"
+  ],
+  "scripts/desktop_delivery.mjs": [
+    "352f50fe2aac04de7026f36bfbb663b0ff23fe08a40413266eebf682e4425a33",
+    "d9523a680ea470b111435bf8896325fbfff8df77c343051f13bdb232f7e3bbef"
+  ],
+  "scripts/desktop_followup.py": [
+    "2e4b8d8222727470e518f2d1f81b386fcc29032e325c7303515cb0482fb46935"
+  ],
+  "scripts/desktop_owner.py": [
+    "0bbe301a960b928ab1882cc95ce2d061bf095f0a5d4f72dc7a1a0f78f1371999",
+    "445435378417e2bca0d36e6a22aedc448059b13eeac3aee9562af5dcc4aac3f4"
+  ],
+  "scripts/install_pbs_watch.ps1": [
+    "1f124cff6f60c81721b873dcc037f1b52b08fe9f866a27d3f51b653a2411f8cc"
+  ],
+  "scripts/pbs_watch.config.example.json": [
+    "75cf35b79819f7d9dcd83465d8cd0005c620dd2ed545fac5455f486e0516259a"
+  ],
+  "scripts/pbs_watch.py": [
+    "1b23807fd93d696089f2ca64f0521e9285c0921d510f71e2391a95f76239dc83",
+    "f0ab049453760fa2dd32a6b966f95e539c8497e70170a4adcf54ee6230fa9074"
+  ]
+}

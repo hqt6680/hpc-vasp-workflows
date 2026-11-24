@@ -135,14 +135,14 @@ def main():
         return
     if not re.fullmatch(r"[\w][\w.-]*", args.ssh or "") or not args.project:
         parser.error("--ssh and --project are required")
+    sys.dont_write_bytecode = True
+    from local_workspace import LOCAL_RULE, install, project_lock
     project = args.project.resolve()
     real_directory(project)
     settings = project / ".vasp-local"
     real_directory(settings)
     rules = project / "AGENTS.md"
-    local_rules = ("## VASP 计算\n\n先读本机 .vasp-local/knowledge.md，再通过配置的 SSH 别名"
-                   "进入个人工作根，读取 AGENTS.md。组内知识和个人总结均从服务器现读。")
-    section(rules, local_rules)
+    section(rules, LOCAL_RULE)
     config = settings / "knowledge.md"
     section(config, "")  # Validate existing markers before changing the remote workspace.
     flag = "--group" if args.group else "--no-group"
@@ -151,16 +151,11 @@ def main():
     proc = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10", args.ssh, command],
                           input=Path(__file__).read_bytes(), stdout=subprocess.PIPE, check=True)
     state = json.loads(proc.stdout.decode())
-    settings.mkdir(parents=True, exist_ok=True)
-    exclude = settings / ".gitignore"
-    if not exclude.exists():
-        with exclude.open("x", encoding="ascii") as out:
-            out.write("*\n")
     cfg = ("SSH 别名 `{}`，已验证服务器 `{}`。\n个人工作根 `{}`。\n默认组内库{}。\n"
            "AICC 路径 `{}`。个人方法索引 `knowledge/personal/README.md`。").format(
                args.ssh, state["host"], state["workdir"], "已启用" if args.group else "已关闭", state["aicc"])
-    save(config, section(config, cfg))
-    save(rules, section(rules, local_rules))
+    with project_lock(project):
+        install(project, cfg=cfg)
     print(json.dumps(state, ensure_ascii=True))
 
 

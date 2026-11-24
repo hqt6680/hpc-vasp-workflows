@@ -32,6 +32,14 @@ if ($task -and $task.Description -ne $description) {
 }
 
 if ($Action -eq 'Install') {
+    $receipt = Join-Path $projectRoot '.vasp-local/restore.json'
+    if ($task -and (Test-Path -LiteralPath $receipt -PathType Leaf)) {
+        $record = Get-Content -LiteralPath $receipt -Raw -Encoding UTF8 | ConvertFrom-Json
+        if ($record.watch.task_preexisting) {
+            Write-Output "Using the existing task $taskName with its original settings."
+            return
+        }
+    }
     if ($task -and $task.State -eq 'Running') {
         throw 'Stop the local watcher before reinstalling its task.'
     }

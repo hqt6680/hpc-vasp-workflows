@@ -12,6 +12,8 @@
 
 本机 PBS 监听的安装、验证和回退见 [HANDOFF.md](HANDOFF.md)。
 
+组员可以对 agent 说“恢复本机部署”。命令和旧版恢复范围见[恢复本机](share/vasp-pbs/references/setup.md#恢复本机)。
+
 ## 在 VS Code 中连接 zjt
 
 Windows 上的 VS Code 和 PowerShell 共用 `%USERPROFILE%\.ssh\config`。在 Remote - SSH 中选择内网地址 `10.100.0.222`，登录账号为 `zjt`。

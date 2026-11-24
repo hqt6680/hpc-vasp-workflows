@@ -1,9 +1,11 @@
 ---
 name: vasp-pbs
-description: 部署 VASP 工作区，选择组内知识库和 AICC，按用户指定的服务器目录学习个人计算方法，并在 Windows 回传已登记的 PBS 作业。
+description: 部署或恢复本机 VASP 工作区，选择组内知识库和 AICC，按用户指定的服务器目录学习个人计算方法，并在 Windows 回传已登记的 PBS 作业。
 ---
 
 # VASP 参考与 PBS 作业回传
+
+用户要求“恢复本机”或卸载时，按[恢复本机](references/setup.md#恢复本机)在用户指定的 Windows 项目执行恢复命令。这个操作只在本机运行。
 
 ## 查阅组内资料
 
