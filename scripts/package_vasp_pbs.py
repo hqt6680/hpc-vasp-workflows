@@ -13,6 +13,13 @@ shared = ("bounded_process.py", "desktop_delivery.mjs", "desktop_owner.py", "des
 tracked = subprocess.check_output(
     ["git", "-C", str(root), "ls-files", "-z", "--", "share/vasp-pbs"]
 ).decode().rstrip("\0").split("\0")
+# Server tutorials, examples and site templates are read over SSH.
+for name in tracked:
+    rel = (root / name).relative_to(skill)
+    if rel.parts[0] == "references" and rel.as_posix() not in {
+        "references/setup.md", "references/group-library.md"
+    }:
+        raise SystemExit(f"Unexpected bundled reference: {rel}")
 assert (skill / "SKILL.md").is_file()
 args.output.parent.mkdir(parents=True, exist_ok=True)
 with ZipFile(args.output, "w", ZIP_DEFLATED) as result:

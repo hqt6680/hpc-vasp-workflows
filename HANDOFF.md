@@ -28,44 +28,10 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 2026-11-20 验证通过 42 项 Python 测试、6 项 Node.js 测试和技能包打包。在 Windows 计划任务上，真实待回传事件触发原聊天重开，随后收到 `started` 回执。更新脚本后重启 `CodexVaspPbsWatch` 计划任务，按真实事件的 `started` 或 `steered` 回执确认回传。回退可检出 `5e3eec6` 上的相关监听脚本再重启任务，保留 `%LOCALAPPDATA%/CodexVaspPbs` 的数据库。
 
-## K₂CrF₄ 重构相与声子接续
+## 组内工作区与服务器资料
 
-科研算例的权威版本位于 zjt 的 `/public/home/zjt/task/now/hqt/Materials/examples/K2CrF4/`，用 `ssh -o BatchMode=yes zjt` 访问。连接后先核对账号、主机和实际路径，读取 `hqt/AGENTS.md`、`Master/README.md` 与算例 `workflow.md`。算例输入、运行日志和结果由服务器保存，按本节记录的脚本指纹定位接手版本。
+2026-11-24 起，组内默认库与算例通过 [SSH 读取入口](share/vasp-pbs/references/group-library.md)实时访问。算例交接时从服务器读取当前 workflow.md 和 PBS 作业表。K₂CrF₄ 的入口为 `Materials/examples/K2CrF4/workflow.md`。发行包提供读取工具、个人工作区初始化和监听器。
 
-2026-11-20 已独立验收 `52590.master` 的 Γ/M DFPT。VASP 6.5.1、Phonopy 2.19.1，28 原子公度超胞、Γ 5×5×1 电子网格、`IBRION=8`、`EDIFF=1E−8`。基态达到电子阈值，12 个响应方向均完成。相同的原始和声学和则处理结果给出 Γ 点最低非平移模约 `+0.621891 THz`、M 点最低模约 `+1.567035 THz`。这两个点已通过，完整 q 网格稳定性仍待验收。结果入口为 `gamma/check/mix2e8/result.json`，优化结构为 `gamma/relax/mix2/CONTCAR`。
+技能包版本 `vasp-pbs-live-2026.11.24`。从解压包在空的 Windows 测试项目和 zjt 隔离工作根实测了启用、关闭、重新启用和重复部署，保留了两端原有配置和个人笔记。Windows 通过 SSH 枚举到四个标准算例，两个站点文档和四份算例流程的读取结果与服务器 SHA-256 一致。
 
-全谱使用 `phon3/` 的 56 原子 2×2×1 超胞和 Γ 4×4×1 电子网格，等效母胞 Γ 8×8×1。`53525.master` 按 STOPCAR 结束，原始输入为 `EDIFF=1E-8`，原验收器退出码为 1。第 38 步两项能量变化为 1.09E−10 和 2.51E−8 eV，按约定的 `1E-7` eV 复核通过。Cr 同向磁矩为 3.708 μB，最大原子力为 0.00080820 eV/Å。复核数据在 `phon3/eq/stop-review.json`。
-
-在算例根可重现手动停算复核。运行环境为 Phonopy 2.19.1、NumPy、spglib 和 Matplotlib。
-
-```bash
-PY=/public/home/zjt/anaconda3/envs/python3.10/bin/python
-"$PY" -B phon3/phon3.py stop-review eq
-```
-
-单个 56 原子作业 `53586.master` 已按要求终止（F/271，第 7 个电子步）。全谱改用 `phon3/small.py` 和 `phon3/small.pbs`。三个 28 原子超胞分别计算 Γ/X、Γ/Y、Γ/M，均用 `IBRION=8`、`EDIFF=1E-7`。每组的 32 个电子 k 点由母胞 Γ 8×8×1 折叠得到。用历史力常数回算，40×40×1 网格上全部 42 支的最大频差小于 3E−7 THz。
-
-11 月 23 日复核，Γ/X `53592.master`（node06）验收通过，12 个响应收敛，最大残力 0.000788 eV/Å。Γ/M `53594.master`（node14）的基态、12 个响应及 84×84 Hessian 已通过复核。用户接受该结果的最大残力 0.001511 eV/Å（常规门槛 0.001 eV/Å）。`phon3/m/result.json` 记录实测值和授权，`small.py` 仅对该 Γ/M 输出识别此例外。两组的实际电子 k 点与权重已核对。此前撤回的 `53593.master` 日志在 `phon3/m/stopped-53593/`。
-
-Γ/Y `53804.master` 已从 node14 队列改派到 node12，11 月 23 日 11:25 在 28 核上启动，沿用原作业号及回传登记。回传后从算例根执行 `"$PY" -B phon3/small.py validate y`，通过后合并三个分支。
-
-全部结束后在算例根执行 `"$PY" -B phon3/small.py merge`。逐组验收基态和各响应、参考残力、总力漂移、磁态和电子网格。复核三份 Γ 矩阵的一致性和四点傅里叶回算误差，检查 `phon3/spectrum-small/` 的 Γ–X–M–Y–Γ–M 色散、40×40×1 网格及施加声学和则前后的低频振型，通过后更新 Master。
-
-本机监听支持迁移前的聊天工作目录。该目录内的“源码”和 `scripts` 两个目录联接分别指向实际 Git 工作区和它的脚本目录。登记和投递均核验聊天归属。
-
-下表为本次 SSH 核验的 SHA-256，路径相对于 `/public/home/zjt/task/now/hqt`。教程与作业表后续按验收结果更新。
-
-| 文件 | SHA-256 |
-| --- | --- |
-| `Master/K2CrF4.md` | `c4bd21b34a0daf92e05f3c6df2d43122fe49ec2a0b2d3403c84e4edc79d0951c` |
-| `Master/phonopy.md` | `9905a7f4c7540934f320d7f721731941b433374c35809c43d1abe0cb0726a77d` |
-| `Master/relax+scf.md` | `f39402427724e60c7c7384817f963e6234413ef40e83990d2b359844fc52ec7d` |
-| `Master/case_index.md` | `99e539ac4bb839b1fb67a3e0c4c839706171710524aeb0648cbce46d2cc67c35` |
-| `Master/vasp_environment.md` | `46e8f5ef61f7ebc122d494cf744a4e20a69e27acd0e7a8192c58c13a4eaff850` |
-| `Materials/examples/K2CrF4/workflow.md` | `005bec88a6e70446a60c26cc033f85616174cc1e8464562954fe51c694f5945e` |
-| `Materials/examples/K2CrF4/gamma/hessian.py` | `ce4ff3ffbd39a86dc542dd67fd1d889d80626b574a758e4fc4294899cc13a7cf` |
-| `Materials/examples/K2CrF4/gamma/hessian.pbs` | `933630f2ea55b70cf4b7eb2084e2f3b29882283a199686ff34c1e5fd8a734497` |
-| `Materials/examples/K2CrF4/phon3/phon3.py` | `0d64f90c7815aa768cb32bff124218b7b19d683397e6bc2bff27a9c55aa21c20` |
-| `Materials/examples/K2CrF4/phon3/run.pbs` | `e7b32812f30b755661fc5d882fe889e188f3ce8c9e496d7f7a4520e259754cf0` |
-| `Materials/examples/K2CrF4/phon3/small.py` | `da91bcef5b3546278026ca2567f5a492fd7b252d575cacb22276258c5c75306e` |
-| `Materials/examples/K2CrF4/phon3/small.pbs` | `c5f0b7ca58a2e9746d9281ab13d701b66cc7321a6844b713a1e2a759d5ce403a` |
+共用 zjt 账号时，先加载 `source "$HOME/bin/vasp6.5-env.sh"`。共线计算用 `$HOME/bin/vasp6.5-wannier`，非共线和 SOC 用 `$HOME/bin/vasp6.5so-wannier`。两个 6.5.1 文件与 hqt 构建逐字节一致，已通过依赖解析及单进程 Intel MPI 版本检查。站点环境说明和 std/ncl PBS 模板已同步；检查记录及原模板位于 `hqt/.codex_reports/vasp_audits/shared_bin_651_20261124_MqQpGD/`。

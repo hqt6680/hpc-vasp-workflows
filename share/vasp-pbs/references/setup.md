@@ -2,13 +2,30 @@
 
 ## 安装技能
 
-解压得到 `vasp-pbs/` 文件夹。将整个文件夹放到 VASP 工作区的 `.agents/skills/`，或放进接收者 Codex 的用户技能目录。用户技能目录优先用 `CODEX_HOME/skills`，未设置 `CODEX_HOME` 时用用户目录下的 `.codex/skills`。重新打开项目后可用 `$vasp-pbs` 调用。
+从 Git 链接部署时，在克隆目录执行 `python scripts/package_vasp_pbs.py <临时目录>/vasp-pbs-skill.zip`。解压后把 `vasp-pbs/` 放到组员 Windows 项目的 `.agents/skills/`。使用发行包时从解压步骤开始。将包中 `assets/project/AGENTS.md` 的知识库约定合并到组员项目已有规则，首次部署就继续完成下面两项选择。新对话可用 `$vasp-pbs` 调用。
 
-组内教程随技能安装，可从 [组内计算资料库](Master/README.md) 查找。教程中的集群路径、程序入口、版本、节点及材料参数来自原算例。请让当前项目的 Codex 先核对自己的远端环境、算例输入和调度资源，再据此调整命令和参数。仅查阅资料时，安装技能文件夹即可。需要回传作业终态时，再配置下方监听器。
+安装后先做下面两项选择。查阅共享内容使用[服务器知识库入口](group-library.md)，待需要作业回传时再配置监听器。
+
+## 知识库设置
+
+首次部署先核对用户自己的 SSH 别名和远程计算工作目录。共用 zjt 登录账号的组员可以选择不同的工作目录。向用户分别询问下面两项，已有明确选择时直接采用。
+
+1. 是否使用默认组内知识库？选择使用时，通过[服务器知识库入口](group-library.md)验证能读到当前教程索引和算例目录。选择跳过时，后续仍可启用。AICC 是独立的计算工具。在 zjt 上读取共享根 `/public/home/zjt/task/now/hqt/.auto-computational-chemist/` 的 `AGENTS.md` 和 `site-zjt.md`，按任务调用相应工具。使用其他站点时核对实际安装位置。
+2. 是否现在指定个人学习目录？可给出一个或多个远程路径，也可回答“以后再说”。收到路径后先核对真实位置，仅阅读指定范围内的说明、代表性输入、作业脚本及必要输出摘要。遇到指向范围外的引用，先记录出处。
+
+确认选择后，在技能目录运行下面的命令。`$aliasName`、`$windowsProject` 和 `$remoteWorkdir` 分别取自本人的 SSH 别名、Windows 项目根和个人远程工作根。跳过默认库时将 `--group` 换成 `--no-group`。共用账号的每个人使用各自的工作根。
+
+```powershell
+python scripts/setup_workspace.py --ssh $aliasName --project $windowsProject --workdir $remoteWorkdir --group
+```
+
+程序在 Windows 项目根创建或合并 `AGENTS.md`，把站点选择写入 Git 忽略的 `.vasp-local/knowledge.md`。在远程工作根创建或合并 `AGENTS.md` 并初始化 `knowledge/personal/README.md`。启用默认库时创建 `knowledge/group` 和 `knowledge/examples` 两个目录链接，分别指向服务器的 `Master/` 和 `Materials/examples/`。关闭默认库时移除对应链接，个人总结保留。
+
+若指定了学习目录，agent 接着在服务器读这些目录，把提炼出的方法写入 `knowledge/personal/` 并更新个人索引，记录来源路径、适用材料、参数依据和验收状态。以后收到“学习目录 …”时按相同流程追加。核对初始化结果时分别检查远端 `AGENTS.md`、个人索引和已启用的链接。
 
 ## 知识库更新
 
-安装包内的 `references/` 是发布时的资料副本。组内知识库更新后，可用新版包的 `references/` 覆盖同名资料。项目自己的集群配置和监听状态继续在项目中维护。
+组内方法在服务器 `hqt/Master/` 维护。每次查阅通过 SSH 获取当前索引、教程和算例；新增算例由实时目录列表发现。算例输入、输出和复算脚本留在服务器。知识库内容的更新即时可读，技能升级保留本机登记的选择。
 
 ## 配置项目监听器
 

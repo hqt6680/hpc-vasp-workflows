@@ -1,13 +1,15 @@
 ---
 name: vasp-pbs
-description: 为 VASP 集群计算查阅组内流程和算例参考，并在 Windows 将已登记的 PBS 作业终态回传原 Codex Desktop 聊天。
+description: 部署 VASP 工作区，选择组内知识库和 AICC，按用户指定的服务器目录学习个人计算方法，并在 Windows 回传已登记的 PBS 作业。
 ---
 
 # VASP 参考与 PBS 作业回传
 
 ## 查阅组内资料
 
-从 [组内计算资料库](references/Master/README.md) 按任务选择教程，参考输入准备、阶段依赖、验收标准和算例记录。准备或续算前，按接收者的项目与集群规则，通过 SSH 核验工作目录、软件和依赖版本、调度器、实际节点资源及算例原始数据。根据材料和目标物理量选择计算参数，记录所采用的版本、输入来源和与示例不同的选择。
+首次部署按[知识库设置](references/setup.md#知识库设置)分别询问是否使用默认组内知识库、是否现在指定个人学习目录，然后执行 `scripts/setup_workspace.py` 初始化指定的工作根。以后对话先读取当前 Windows 项目的 `.vasp-local/knowledge.md`，进入已配置的远程工作根读 `AGENTS.md`。收到“学习这个目录”时追加到 `knowledge/personal/`。
+
+使用默认库时，按[实时读取组内知识库](references/group-library.md)从服务器选择教程、枚举算例并读取其流程文档。AICC 提供准备、预检和验收工具。普通计算使用本人的远程工作目录，按实际输入记录版本、参数和与示例的差异。
 
 ## 使用项目监听器
 

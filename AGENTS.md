@@ -1,5 +1,7 @@
 # VASP 计算项目
 
+- 组员首次部署时，按 `share/vasp-pbs/references/setup.md` 询问本人的 SSH 别名、计算工作目录、默认组内库开关及是否现在学习个人目录。已有本机选择时沿用。使用默认库时按 `share/vasp-pbs/references/group-library.md` 经 SSH 读取最新内容。
+
 - 本项目的服务器操作默认使用 `ssh -o BatchMode=yes zjt`。每次连接后显式进入 `/public/home/zjt/task/now/hqt`，核对 SSH 返回的账号、主机和实际路径，并先读取远端 `AGENTS.md`。计算在 `hqt` 下对应的算例目录内进行。
 - 准备、提交、续算或验收计算前，先通过 SSH 读取 `hqt/Master/README.md`，按任务选择组内教程，并核对对应算例的实际输入、输出和计算版本。
 - PBS 作业名用简短的计算名，例如 `scf`、`socx`、`tb2j`。常规作业显式选小节点，同一算例并行占用最多两个小节点。确认小节点内存不足等资源限制后再考虑大内存节点，使用前核对 PBS 实际占用，始终给师兄留至少一台大内存节点可用。

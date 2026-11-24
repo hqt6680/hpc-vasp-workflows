@@ -1,4 +1,5 @@
 /share/
+/.vasp-local/
 /.serena/
 
 __pycache__/
