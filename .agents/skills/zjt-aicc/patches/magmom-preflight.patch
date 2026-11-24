@@ -1,0 +1,55 @@
+--- a/tools/vasp/scripts/check_inputs.py
++++ b/tools/vasp/scripts/check_inputs.py
+@@ -9,7 +9,7 @@
+ Checks (stdlib only, no pymatgen needed):
+   - POSCAR parses; species line present; atom counts sane
+   - POTCAR species (TITEL) match POSCAR species in order
+-  - MAGMOM length == total atoms; LDAUL/LDAUU/LDAUJ length == n species
++  - MAGMOM length == N (collinear) or 3N (noncollinear/SOC); LDAUL/LDAUU/LDAUJ length == n species
+   - KPOINTS exists or KSPACING set; ENCUT explicit; KSPACING/KPOINTS sanity warnings
+   - slab-like cells warn unless ISYM=0, to avoid symmetry-constrained surfaces
+   - ISMEAR=-5 not combined with NSW>0
+@@ -43,11 +43,20 @@
+     tags = {}
+     if not os.path.isfile(path):
+         return tags
+-    for line in open(path):
+-        line = line.split("#")[0].split("!")[0].strip()
+-        if "=" in line:
+-            k, v = line.split("=", 1)
+-            tags[k.strip().upper()] = v.strip()
++    pending = ""
++    with open(path) as stream:
++        for line in stream:
++            line = line.split("#")[0].split("!")[0].strip()
++            if not line:
++                continue
++            if line.endswith("\\"):
++                pending += line[:-1] + " "
++                continue
++            for entry in (pending + line).split(";"):
++                if "=" in entry:
++                    k, v = entry.split("=", 1)
++                    tags[k.strip().upper()] = v.strip()
++            pending = ""
+     return tags
+ 
+ 
+@@ -199,8 +208,15 @@
+     if "MAGMOM" in incar and natoms:
+         try:
+             mlen = len(expand_counts(incar["MAGMOM"].split()))
+-            if mlen != natoms:
+-                errors.append(f"MAGMOM has {mlen} entries, POSCAR has {natoms} atoms")
++            vector_moments = any(
++                incar.get(tag, "").strip(".").upper() in ("T", "TRUE")
++                for tag in ("LNONCOLLINEAR", "LSORBIT")
++            )
++            per_atom = 3 if vector_moments else 1
++            expected = per_atom * natoms
++            if mlen != expected:
++                errors.append(f"MAGMOM has {mlen} entries, expected {expected} "
++                              f"({per_atom} per atom for {natoms} atoms)")
+         except ValueError:
+             warn("MAGMOM could not be parsed")
+     for tag in ("LDAUL", "LDAUU", "LDAUJ"):

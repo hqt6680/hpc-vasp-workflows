@@ -2,6 +2,12 @@
 
 本机监听入口为 [scripts/pbs_watch.py](scripts/pbs_watch.py)，通过 SSH 读取已登记的 PBS 作业，并把事件回传到原 Codex 聊天。Codex Desktop 若已对该聊天退订，监听器在确认周额度和代理实例后，可通过官方深链接打开原聊天并重试该事件。
 
+## zjt 的 MAGMOM 预检
+
+2026-11-24 已修复服务器 AICC 的 `tools/vasp/scripts/check_inputs.py`。显式 `MAGMOM` 展开重复记法后，共线计算检查 N 个数，开启 `LNONCOLLINEAR` 或 `LSORBIT` 时检查 3N 个数，N 取自 POSCAR。MnInP₂Te₆ 的共线 SCF 和 TB2J 三个 SOC 方向均已通过离线预检，另有 11 个输入变体覆盖错误长度、开关和 INCAR 写法。
+
+本站[预检补丁](.agents/skills/zjt-aicc/patches/magmom-preflight.patch)对应 AICC 上游 `e27b555ecfee3a7b66472c19c93b01ad0a1ccae1`。重装该版本时，在服务器 AICC 根目录用 `patch --dry-run -p1` 从标准输入检查补丁，再用 `patch -p1` 应用。原文件、复测脚本和日志在服务器 `hqt/.codex_reports/vasp_audits/magmom_preflight_20261124_JBgj3R/`，需要回退时按 `before/` 内的相对路径恢复。
+
 ## 启动和验证
 
 Windows 端需要 Python 3.10+、Node.js 18+、可用的 SSH 别名和正在运行的 Codex Desktop。站点参数见 [PBS 监听说明](scripts/README.md) 和 [配置示例](share/vasp-pbs/assets/project/scripts/pbs_watch.config.example.json)。SSH 密钥、实际站点配置和监听数据库保存在各自设备。
