@@ -19,7 +19,7 @@
 python scripts/setup_workspace.py --ssh $aliasName --project $windowsProject --workdir $remoteWorkdir --group
 ```
 
-程序在 Windows 项目根创建或合并 `AGENTS.md`，把站点选择写入 Git 忽略的 `.vasp-local/knowledge.md`。在远程工作根创建或合并 `AGENTS.md` 并初始化 `knowledge/personal/README.md`。启用默认库时创建 `knowledge/group` 和 `knowledge/examples` 两个目录链接，分别指向服务器的 `Master/` 和 `Materials/examples/`。关闭默认库时移除对应链接，个人总结保留。
+程序在 Windows 项目根创建或合并 `AGENTS.md`，把站点选择写入 Git 忽略的 `.vasp-local/knowledge.md`。在远程工作根创建或合并 `AGENTS.md` 并初始化 `knowledge/personal/README.md`。启用默认库时创建 `knowledge/default` 和 `knowledge/examples` 两个目录链接，分别指向服务器的 `Master/` 和 `Materials/examples/`。旧版部署创建的 `knowledge/group` 链接在重新部署时自动迁移。关闭默认库时移除对应链接，个人总结保留。
 
 若指定了学习目录，agent 接着在服务器读这些目录，把提炼出的方法写入 `knowledge/personal/` 并更新个人索引，记录来源路径、适用材料、参数依据和验收状态。以后收到“学习目录 …”时按相同流程追加。核对初始化结果时分别检查远端 `AGENTS.md`、个人索引和已启用的链接。
 

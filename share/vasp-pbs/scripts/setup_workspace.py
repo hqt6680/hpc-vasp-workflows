@@ -61,13 +61,13 @@ def configure_remote(workdir, enabled):
     if pwd.getpwuid(os.getuid()).pw_name != "zjt":
         raise ValueError("Expected the shared zjt account")
     root = Path(os.path.realpath(workdir))
-    sources = {"group": GROUP_ROOT / "Master", "examples": GROUP_ROOT / "Materials/examples"}
+    sources = {"default": GROUP_ROOT / "Master", "examples": GROUP_ROOT / "Materials/examples"}
     aicc = GROUP_ROOT / ".auto-computational-chemist"
     if root in (Path("/"), Path.home(), GROUP_ROOT) or any(
             p == root or p in root.parents for p in list(sources.values()) + [aicc]):
         raise ValueError("Choose a personal calculation directory, outside the shared library")
     if enabled:
-        if not (sources["group"] / "README.md").is_file() or not sources["examples"].is_dir():
+        if not (sources["default"] / "README.md").is_file() or not sources["examples"].is_dir():
             raise ValueError("The shared knowledge sources are unavailable")
     root.mkdir(parents=True, exist_ok=True)
     directory_fd = os.open(str(root), os.O_RDONLY)
@@ -88,7 +88,7 @@ def configure_remote(workdir, enabled):
             elif link.exists():
                 raise ValueError("Path already occupied: " + str(link))
         rules = root / "AGENTS.md"
-        group_rule = ("通过 knowledge/group/README.md 读取服务器当前教程。每次查算例时枚举 "
+        group_rule = ("通过 knowledge/default/README.md 读取服务器当前教程。每次查算例时枚举 "
                       "knowledge/examples/ 并读取对应 workflow.md。" if enabled else
                       "本工作区已选择跳过默认组内知识库。")
         body = ("## VASP 工作区\n\n" + group_rule + "\n"
@@ -99,6 +99,12 @@ def configure_remote(workdir, enabled):
         if not index.exists():
             with index.open("x", encoding="utf-8") as out:
                 out.write("# 个人计算知识库\n\n在此索引本人总结的方法，并记录来源目录和适用条件。\n")
+        legacy = knowledge / "group"
+        if legacy.is_symlink() and os.readlink(str(legacy)) == str(sources["default"]):
+            if enabled:
+                legacy.replace(knowledge / "default")
+            else:
+                legacy.unlink()
         for name, target in sources.items():
             link = knowledge / name
             if enabled and not link.is_symlink():

@@ -32,6 +32,6 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 2026-11-24 起，组内默认库与算例通过 [SSH 读取入口](share/vasp-pbs/references/group-library.md)实时访问。算例交接时从服务器读取当前 workflow.md 和 PBS 作业表。K₂CrF₄ 的入口为 `Materials/examples/K2CrF4/workflow.md`。发行包提供读取工具、个人工作区初始化和监听器。
 
-技能包版本 `vasp-pbs-live-2026.11.24`。从解压包在空的 Windows 测试项目和 zjt 隔离工作根实测了启用、关闭、重新启用和重复部署，保留了两端原有配置和个人笔记。Windows 通过 SSH 枚举到四个标准算例，两个站点文档和四份算例流程的读取结果与服务器 SHA-256 一致。
+技能包版本 `vasp-pbs-live-2026.11.24.1`。默认知识库入口为 `knowledge/default/`。在 zjt 隔离工作根验证了新建、从旧版 `knowledge/group/` 迁移、重复部署和关闭默认库，并验证同名用户目录及个人笔记得到保留。Windows 通过 SSH 枚举到四个标准算例，两个站点文档和四份算例流程的读取结果与服务器 SHA-256 一致。
 
 共用 zjt 账号时，先加载 `source "$HOME/bin/vasp6.5-env.sh"`。共线计算用 `$HOME/bin/vasp6.5-wannier`，非共线和 SOC 用 `$HOME/bin/vasp6.5so-wannier`。两个 6.5.1 文件与 hqt 构建逐字节一致，已通过依赖解析及单进程 Intel MPI 版本检查。站点环境说明和 std/ncl PBS 模板已同步；检查记录及原模板位于 `hqt/.codex_reports/vasp_audits/shared_bin_651_20261124_MqQpGD/`。
