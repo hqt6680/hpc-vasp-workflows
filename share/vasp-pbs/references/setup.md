@@ -2,16 +2,46 @@
 
 ## 安装技能
 
-从 Git 链接部署时，在项目外的临时目录克隆并运行 `python scripts/package_vasp_pbs.py <临时目录>/vasp-pbs-skill.zip`。使用发行包时直接解压到临时目录。先完成下面两项选择，再从解压包执行初始化。程序负责复制技能和合并规则，并在写入前登记本机文件的归属。agent 完成部署后清理本次创建的临时克隆、压缩包和解压目录。新对话可用 `$vasp-pbs` 调用。
+从 Git 链接部署时，在项目外的临时目录克隆并运行 `python scripts/package_vasp_pbs.py <临时目录>/vasp-pbs-skill.zip`。使用发行包时直接解压到临时目录。从解压包按下列顺序部署。程序负责复制技能和合并规则，并在写入前登记本机文件的归属。agent 完成部署后清理本次创建的临时克隆、压缩包和解压目录。新对话可用 `$vasp-pbs` 调用。
 
-安装后先做下面两项选择。查阅共享内容使用[服务器知识库入口](group-library.md)，待需要作业回传时再配置监听器。
+**每次只发一张卡，只问一件事。** 先读当前项目已有的 `.vasp-local/knowledge.md` 和用户已给出的信息，跳过已知项。对每个缺项单独调用客户端的问答卡工具（如 `request_user_input_async`），每次 `questions` 只放一个问题。地址、名称和路径用自由输入，开关给出可选答案。收到该卡的实际回答后再决定下一张，预选项和等待超时都不算回答。客户端没有卡片工具时，每轮只发当前这一问并等待回复。以下顺序供 agent 执行。
+
+## 建立可复用的 SSH 连接
+
+1. **找已有入口。** 优先用项目记录或用户指定的名称。否则从当前 Windows 用户的 OpenSSH 配置（含 `Include`）找与目标集群匹配的具体 `Host`，写成 IP 的名称也有效。用 `ssh -G <别名>` 核对生效的主机、用户、端口和密钥路径。多个候选无法区分时，单卡问“你平时用哪个入口登录这台集群？”，提供候选和“新建别名”。对已确定的目标执行下方免交互验证，成功就进入工作区设置。`ssh -G` 对未配置的名称也会给出默认值，是否可用以实际登录为准。
+2. **缺少入口时逐卡建别名。** 依次单独问“这个连接想用什么别名？”、“服务器的地址是什么？”、“用哪个账号登录？”、“SSH 端口是多少？（通常是 22）”。已知项跳过。别名以字母或数字开头，可含字母、数字、点、短横线和下划线。若所选名称已指向其他服务器，回到别名卡选一个空闲名称。当前工作区初始化脚本适配组内 `zjt` 账号，先核对目标账号再初始化。
+3. **保存连接。** agent 在 `%USERPROFILE%\.ssh\config` 合并目标 `Host` 段，保留已有配置和 `Include`。下面是最终配置的例子，按实际回答及选用的密钥替换。先用 `ssh -G` 复核，注意 `Host *` 等通配段的先后顺序。若已有可用公钥，直接尝试免交互验证。
+
+```sshconfig
+Host vasp-cluster
+    HostName login.example.org
+    User zjt
+    Port 22
+    IdentityFile ~/.ssh/id_ed25519_vasp_cluster
+    IdentitiesOnly yes
+```
+
+4. **配好免密登录。** 初次连接由用户在本机交互终端将主机指纹与集群提供的指纹核对后接受。指纹有变化时先向管理员核实。连接超时或地址无法解析时，先检查网络、VPN、地址和端口，再重试原入口。若只是需要服务器密码或私钥口令，继续使用同一别名，按以下顺序处理。
+
+   - 优先使用本人为该站点选定的密钥。需要新建时，选取未占用的本机文件名，运行 `ssh-keygen -t ed25519 -f $keyPath`，由用户在本机终端设置密钥口令。将目标别名的 `IdentityFile` 指向该路径。
+   - 用 Windows 的 `ssh-agent` 保存解锁状态。服务尚未启用自动启动时，在管理员 PowerShell 执行 `Set-Service ssh-agent -StartupType Automatic`，按需执行 `Start-Service ssh-agent`。随后以部署用户身份在普通终端执行 `ssh-add $keyPath`，用 `ssh-add -l` 核对指纹，并重试免交互登录。[Windows OpenSSH 密钥管理](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_keymanagement)
+   - 如果服务器尚未授权该公钥，在用户可交互的本机终端通过该别名登录，由用户在 SSH 提示处输入首次登录密码。核对远端账号后，仅把对应 `.pub` 公钥登记到该账号的 `~/.ssh/authorized_keys`。按公钥内容去重，保留其他条目和已有的密钥限制。新建的 `~/.ssh` 和 `authorized_keys` 权限分别为 `700` 和 `600`。密码与密钥口令只在本机程序的隐藏提示处输入，私钥留在 Windows 用户目录。
+
+5. **验证保存的配置。** 在新的普通 PowerShell 中，将 `$aliasName` 设为刚保存的名称。使用与初始化和监听器相同的 SSH 客户端，只给别名，不额外指定账号、端口或密钥。以下命令适用于组内服务器。
+
+```powershell
+ssh -T -o BatchMode=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes -o ConnectTimeout=10 $aliasName 'cd /public/home/zjt/task/now/hqt && id -un && hostname -s && pwd -P && cat AGENTS.md'
+```
+
+退出码为零，账号、主机和实际路径符合目标，并已读到远端规则时，才进入下一步。失败时根据 SSH 的报错处理当前项，再从新终端复测。如果站点要求每次交互认证，请用户与管理员核实该账号支持的非交互登录方式。
 
 ## 知识库设置
 
-首次部署先核对用户自己的 SSH 别名和远程计算工作目录。共用 zjt 登录账号的组员可以选择不同的工作目录。向用户分别询问下面两项，已有明确选择时直接采用。
+SSH 验证通过后，按顺序只发尚未回答的卡。
 
-1. 是否使用默认组内知识库？选择使用时，通过[服务器知识库入口](group-library.md)验证能读到当前教程索引和算例目录。选择跳过时，后续仍可启用。AICC 是独立的计算工具。在 zjt 上读取共享根 `/public/home/zjt/task/now/hqt/.auto-computational-chemist/` 的 `AGENTS.md` 和 `site-zjt.md`，按任务调用相应工具。使用其他站点时核对实际安装位置。
-2. 是否现在指定个人学习目录？可给出一个或多个远程路径，也可回答“以后再说”。收到路径后先核对真实位置，仅阅读指定范围内的说明、代表性输入、作业脚本及必要输出摘要。遇到指向范围外的引用，先记录出处。
+1. “你自己的服务器计算工作目录是哪个？” 接收个人工作根的绝对路径。共用登录账号的组员各用自己的目录。
+2. “是否使用默认组内知识库？” 选“使用”时，验证能读到当前教程索引和算例目录。选“跳过”可在以后启用。AICC 独立配置，在 zjt 上读取共享根 `/public/home/zjt/task/now/hqt/.auto-computational-chemist/` 的 `AGENTS.md` 和 `site-zjt.md`。[服务器知识库入口](group-library.md)
+3. “现在要学习你的个人算例吗？” 选“现在学习”后才另发一张“要学习哪个服务器目录？”路径卡，可填一个或多个路径。选“以后再说”直接跳过路径卡。收到路径后先核对真实位置，仅阅读指定范围内的说明、代表性输入、作业脚本及必要输出摘要。遇到指向范围外的引用，先记录出处。
 
 确认选择后，在技能目录运行下面的命令。`$aliasName`、`$windowsProject` 和 `$remoteWorkdir` 分别取自本人的 SSH 别名、Windows 项目根和个人远程工作根。跳过默认库时将 `--group` 换成 `--no-group`。共用账号的每个人使用各自的工作根。
 
@@ -23,6 +53,8 @@ python scripts/setup_workspace.py --ssh $aliasName --project $windowsProject --w
 
 若指定了学习目录，agent 接着在服务器读这些目录，把提炼出的方法写入 `knowledge/personal/` 并更新个人索引，记录来源路径、适用材料、参数依据和验收状态。以后收到“学习目录 …”时按相同流程追加。核对初始化结果时分别检查远端 `AGENTS.md`、个人索引和已启用的链接。
 
+最后，若用户尚未选择回传方式，单独发“现在启用 PBS 作业回传吗？”卡。选“现在启用”后按下文配置和测试。选“以后再说”即可结束本次部署。
+
 ## 知识库更新
 
 组内方法在服务器 `hqt/Master/` 维护。每次查阅通过 SSH 获取当前索引、教程和算例；新增算例由实时目录列表发现。算例输入、输出和复算脚本留在服务器。知识库内容的更新即时可读，技能升级保留本机登记的选择。
@@ -30,7 +62,7 @@ python scripts/setup_workspace.py --ssh $aliasName --project $windowsProject --w
 ## 配置项目监听器
 
 1. 在 Windows 的 VASP 工作区打开 Codex Desktop，确认有 Python 3.10 或更高版本、Node.js 和 OpenSSH 客户端。在技能目录执行 `python -B scripts/local_workspace.py install --project "$windowsProject" --watcher`，由安装器写入及登记项目监听脚本和回传规则。
-2. 编辑程序准备的 `scripts/pbs_watch.config.json`，按接收者实际站点填写下列字段。真实连接信息由接收者在本机维护。
+2. agent 编辑程序准备的 `scripts/pbs_watch.config.json`，复用前面已验证的别名、账号、主机和个人工作根，并从实际 PBS 记录核对可查的字段。其余需要用户决定的字段仍逐张发卡，每张只问一项。真实连接信息在接收者本机维护。
 
 | 字段 | 填写内容 |
 | --- | --- |

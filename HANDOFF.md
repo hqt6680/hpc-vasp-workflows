@@ -10,7 +10,7 @@
 
 ## 启动和验证
 
-Windows 端需要 Python 3.10+、Node.js 18+、可用的 SSH 别名和正在运行的 Codex Desktop。站点参数见 [PBS 监听说明](scripts/README.md) 和 [配置示例](share/vasp-pbs/assets/project/scripts/pbs_watch.config.example.json)。SSH 密钥、实际站点配置和监听数据库保存在各自设备。
+Windows 端需要 Python 3.10+ 和 OpenSSH 客户端。缺少可用的 SSH 别名时，按[安装说明](share/vasp-pbs/references/setup.md)逐卡配置并验证免密复连。启用监听还需要 Node.js 18+ 和正在运行的 Codex Desktop。站点参数见 [PBS 监听说明](scripts/README.md) 和 [配置示例](share/vasp-pbs/assets/project/scripts/pbs_watch.config.example.json)。SSH 私钥、实际站点配置和监听数据库保存在各自设备。
 
 ```powershell
 .\scripts\install_pbs_watch.ps1 -Action Install -ResumeAtLogon

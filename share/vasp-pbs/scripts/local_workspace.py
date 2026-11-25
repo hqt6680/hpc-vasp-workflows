@@ -32,7 +32,9 @@ PACKAGE = ("README.md", "SKILL.md", "references/setup.md", "references/group-lib
 STATE_FILES = ("watch.sqlite3", "watch.sqlite3-shm", "watch.sqlite3-wal", "watch.sqlite3-journal",
                "watch.log", "watch.log.1")
 LOCAL_RULE = ("## VASP 计算\n\n先读本机 .vasp-local/knowledge.md，再通过配置的 SSH 别名"
-              "进入个人工作根，读取 AGENTS.md。组内知识和个人总结均从服务器现读。")
+              "进入个人工作根，读取 AGENTS.md。组内知识和个人总结均从服务器现读。\n"
+              "部署与重新配置按 .agents/skills/vasp-pbs/references/setup.md 执行。每个缺项单独发一张问答卡，"
+              "收到回答再问下一项。缺少 SSH 别名时引导配置并验证免密复连。")
 
 
 def checked(root, name):
