@@ -30,7 +30,7 @@ Host vasp-cluster
 5. **验证保存的配置。** 在新的普通 PowerShell 中，将 `$aliasName` 设为刚保存的名称。使用与初始化和监听器相同的 SSH 客户端，只给别名，不额外指定账号、端口或密钥。以下命令适用于组内服务器。
 
 ```powershell
-ssh -T -o BatchMode=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes -o ConnectTimeout=10 $aliasName 'cd /public/home/zjt/task/now/hqt && id -un && hostname -s && pwd -P && cat AGENTS.md'
+ssh -T -o BatchMode=yes -o PreferredAuthentications=publickey -o StrictHostKeyChecking=yes -o ConnectTimeout=10 $aliasName 'cd /public/home/zjt/.examples && id -un && hostname -s && pwd -P && cat AGENTS.md'
 ```
 
 退出码为零，账号、主机和实际路径符合目标，并已读到远端规则时，才进入下一步。失败时根据 SSH 的报错处理当前项，再从新终端复测。如果站点要求每次交互认证，请用户与管理员核实该账号支持的非交互登录方式。
@@ -40,7 +40,7 @@ ssh -T -o BatchMode=yes -o PreferredAuthentications=publickey -o StrictHostKeyCh
 SSH 验证通过后，按顺序只发尚未回答的卡。
 
 1. “你自己的服务器计算工作目录是哪个？” 接收个人工作根的绝对路径。共用登录账号的组员各用自己的目录。
-2. “是否使用默认组内知识库？” 选“使用”时，验证能读到当前教程索引和算例目录。选“跳过”可在以后启用。AICC 独立配置，在 zjt 上读取共享根 `/public/home/zjt/task/now/hqt/.auto-computational-chemist/` 的 `AGENTS.md` 和 `site-zjt.md`。[服务器知识库入口](group-library.md)
+2. “是否使用默认组内知识库？” 选“使用”时，验证能读到 `/public/home/zjt/.examples/Master/case_index.md` 和相邻的算例库。选“跳过”可在以后启用。两种选择都会在本人的远程工作根安装独立的 AICC。[服务器知识库入口](group-library.md)
 3. “现在要学习你的个人算例吗？” 选“现在学习”后才另发一张“要学习哪个服务器目录？”路径卡，可填一个或多个路径。选“以后再说”直接跳过路径卡。收到路径后先核对真实位置，仅阅读指定范围内的说明、代表性输入、作业脚本及必要输出摘要。遇到指向范围外的引用，先记录出处。
 
 确认选择后，在技能目录运行下面的命令。`$aliasName`、`$windowsProject` 和 `$remoteWorkdir` 分别取自本人的 SSH 别名、Windows 项目根和个人远程工作根。跳过默认库时将 `--group` 换成 `--no-group`。共用账号的每个人使用各自的工作根。
@@ -49,7 +49,9 @@ SSH 验证通过后，按顺序只发尚未回答的卡。
 python scripts/setup_workspace.py --ssh $aliasName --project $windowsProject --workdir $remoteWorkdir --group
 ```
 
-程序在 Windows 项目根创建或合并 `AGENTS.md`，把站点选择写入 Git 忽略的 `.vasp-local/knowledge.md`。在远程工作根创建或合并 `AGENTS.md` 并初始化 `knowledge/personal/README.md`。启用默认库时创建 `knowledge/default` 和 `knowledge/examples` 两个目录链接，分别指向服务器的 `Master/` 和 `Materials/examples/`。旧版部署创建的 `knowledge/group` 链接在重新部署时自动迁移。关闭默认库时移除对应链接，个人总结保留。
+程序在 Windows 项目根合并 `AGENTS.md`，把站点选择和专属 AICC 路径写入 `.vasp-local/knowledge.md`。在远程工作根生成 `AGENTS.md`、`knowledge/personal/README.md` 和实体目录 `.auto-computational-chemist/`。AICC 包含本站工具、流程、知识文件及写有本人工作根的 `site-zjt.md`。再次部署时沿用已有的独立安装和个人修改。
+
+启用默认库时，`knowledge/default` 指向 `/public/home/zjt/.examples/Master`，`knowledge/examples` 指向 `/public/home/zjt/.examples/Materials/examples`。旧部署用相同的工作根和开关重跑上述命令即可补装 AICC，并迁移原先指向 hqt 的托管链接。关闭默认库只移除对应链接。验收时在远程工作根用 `ls -ld .auto-computational-chemist` 核对实体目录，读取其中的站点说明。启用默认库时，用 `readlink -f` 核对两个链接的实际目标，打开一个算例的 `workflow.md`，再用站点 Python 运行个人安装中的 `.auto-computational-chemist/tools/vasp/scripts/check_inputs.py knowledge/examples/MnInP2Te6-tb2j/source/scf`。
 
 若指定了学习目录，agent 接着在服务器读这些目录，把提炼出的方法写入 `knowledge/personal/` 并更新个人索引，记录来源路径、适用材料、参数依据和验收状态。以后收到“学习目录 …”时按相同流程追加。核对初始化结果时分别检查远端 `AGENTS.md`、个人索引和已启用的链接。
 
@@ -57,7 +59,7 @@ python scripts/setup_workspace.py --ssh $aliasName --project $windowsProject --w
 
 ## 知识库更新
 
-组内方法在服务器 `hqt/Master/` 维护。每次查阅通过 SSH 获取当前索引、教程和算例；新增算例由实时目录列表发现。算例输入、输出和复算脚本留在服务器。知识库内容的更新即时可读，技能升级保留本机登记的选择。
+组员通过 SSH 读取 `/public/home/zjt/.examples` 中已发布的索引、教程和算例。新增内容发布到此目录后即可查到。每个工作区共用这一份算例数据，按需维护工作根里的个人 AICC 和笔记。
 
 ## 配置项目监听器
 

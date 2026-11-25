@@ -3,7 +3,7 @@
 - 组员部署按 `share/vasp-pbs/references/setup.md` 操作。每个待答问题单独发一张问答卡，收到回答再发下一张，已有选择直接沿用。先验证本人的 SSH 入口，缺少别名时逐卡配置并保存，已有别名但需要密码时在该入口配置公钥登录。免交互复连通过后，再逐卡询问个人工作目录、知识库和作业回传选项。使用默认库时按 `share/vasp-pbs/references/group-library.md` 经 SSH 读取最新内容。
 
 - 本项目的服务器操作使用 `ssh -o BatchMode=yes <本站别名>`，默认别名为 `zjt`，本机已选用其他本站入口时沿用已验证的名称。每次连接后显式进入 `/public/home/zjt/task/now/hqt`，核对 SSH 返回的账号、主机和实际路径，并先读取远端 `AGENTS.md`。计算在 `hqt` 下对应的算例目录内进行。
-- 准备、提交、续算或验收计算前，先通过 SSH 读取 `hqt/Master/README.md`，按任务选择组内教程，并核对对应算例的实际输入、输出和计算版本。
+- 准备、提交、续算或验收计算前，使用默认库的工作区通过 SSH 从 `/public/home/zjt/.examples/Master/README.md` 选教程，在同一副本的 `Master/case_index.md` 查算例，并核对实际输入、输出和计算版本。组员使用其工作根内的 `.auto-computational-chemist/`。
 - PBS 作业名用简短的计算名，例如 `scf`、`socx`、`tb2j`。常规作业显式选小节点，同一算例并行占用最多两个小节点。确认小节点内存不足等资源限制后再考虑大内存节点，使用前核对 PBS 实际占用，始终给师兄留至少一台大内存节点可用。
 - VASP 电子自洽默认用 `EDIFF=1E-7` eV。对精度最敏感的计算可收紧到 `1E-8` eV，此为项目最严格档。难收敛体系可酌情放宽到 `1E-6` eV，并核对目标物理量所需的精度。
 - `workq` 的新作业默认省略 `walltime`。提交前同时检查 PBS 脚本和 `qsub -l` 参数，移除从旧模板带来的时限。提交后用 `qstat -f JOB_ID` 核对 `Resource_List.walltime`。只有用户指定或队列强制时才显式设置，并按同类作业的实测耗时留足余量。

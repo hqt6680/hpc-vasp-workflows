@@ -4,9 +4,9 @@ import re
 import shlex
 import subprocess
 from pathlib import PurePosixPath
+from setup_workspace import LIBRARY_ROOT
 
 
-GROUP_ROOT = "/public/home/zjt/task/now/hqt"
 DOCUMENT_ROOTS = ("Master", "Materials/examples", ".auto-computational-chemist")
 
 
@@ -21,8 +21,8 @@ def main():
     commands = [
         "set -eu",
         "test \"$(id -un)\" = zjt",
-        "cd " + shlex.quote(GROUP_ROOT),
-        "test \"$(pwd -P)\" = " + shlex.quote(GROUP_ROOT),
+        "cd " + shlex.quote(LIBRARY_ROOT.as_posix()),
+        "test \"$(pwd -P)\" = " + shlex.quote(LIBRARY_ROOT.as_posix()),
         'printf "%s@%s %s\\n" "$(id -un)" "$(hostname -s)" "$(pwd -P)" >&2',
     ]
     if args.document:

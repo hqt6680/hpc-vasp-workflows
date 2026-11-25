@@ -30,8 +30,8 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 ## 组内工作区与服务器资料
 
-组内默认库与算例通过 [SSH 读取入口](share/vasp-pbs/references/group-library.md)实时访问。新算例从 `Master/README.md` 选方法，再到 `Master/case_index.md` 找对应的结构、物理量和结果文件。四个标准算例各自的 `workflow.md` 记录已验收的输入、关键参数和结果。例如 K₂CrF₄ 按结构相区分完整声子谱和指定 q 点的验证。尚待验收的条目列在索引的“待建设”，运行交接查算例末尾的 PBS 作业表。发行包提供读取工具、个人工作区初始化和监听器。
+组员默认库位于 `/public/home/zjt/.examples`，以其中的 `Master/README.md`、`Master/case_index.md` 和 `Materials/examples/` 为查询入口。四个标准算例各自的 `workflow.md` 记录已验收的输入、关键参数和结果。公共科学脚本的维护源仍在 `hqt/Master/Simulation`，维护后将验收的变更同步到发布库。组员初始化从发布库复制 AICC 到所选工作根，重跑时保留个人修改并迁移原有知识库链接。[SSH 读取入口](share/vasp-pbs/references/group-library.md)
 
-技能包版本 `vasp-pbs-live-2026.11.24.2`。默认知识库入口为 `knowledge/default/`。本机恢复入口为 [local_workspace.py](share/vasp-pbs/scripts/local_workspace.py)。已在隔离 Windows 项目验证带登录触发器的真实计划任务、项目数据库和日志随部署清除，空项目恢复后目录无残留。恢复前后远程测试工作区的配置、个人索引哈希和知识库链接一致。11 月 20 日及 11 月 24 日 .1 的实际发行包均已验证旧版恢复。
+专属 AICC 与新知识库入口使用技能包版本 `vasp-pbs-live-2026.11.25`，部署记录见服务器 `hqt/.codex_reports/vasp_audits/member_library_20261125/deployment.md`。此前 `vasp-pbs-live-2026.11.24.2` 已验证本机监听器、数据库与日志的恢复，以及旧版恢复兼容性。[本机恢复入口](share/vasp-pbs/scripts/local_workspace.py)
 
 共用 zjt 账号时，先加载 `source "$HOME/bin/vasp6.5-env.sh"`。共线计算用 `$HOME/bin/vasp6.5-wannier`，非共线和 SOC 用 `$HOME/bin/vasp6.5so-wannier`。两个 6.5.1 文件与 hqt 构建逐字节一致，已通过依赖解析及单进程 Intel MPI 版本检查。站点环境说明和 std/ncl PBS 模板已同步；检查记录及原模板位于 `hqt/.codex_reports/vasp_audits/shared_bin_651_20261124_MqQpGD/`。

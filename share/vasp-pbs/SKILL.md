@@ -11,9 +11,9 @@ description: 部署或恢复本机 VASP 工作区，选择组内知识库和 AIC
 
 部署时按[配置和安装](references/setup.md)先验证已选 SSH 入口。缺少别名时逐卡配置并保存，已有入口只缺免密认证时沿用该入口登记公钥。验证免交互复连后，再收集工作根、知识库和回传选择。每个缺项调用一次问答卡工具，只放一个问题，等用户实际回复后再发下一张。已有答案直接沿用。
 
-从解压包执行 `scripts/setup_workspace.py` 初始化指定的工作根。以后对话先读取当前 Windows 项目的 `.vasp-local/knowledge.md`，进入已配置的远程工作根读 `AGENTS.md`。收到“学习这个目录”时追加到 `knowledge/personal/`。
+从解压包执行 `scripts/setup_workspace.py` 初始化指定的工作根。以后对话先读取当前 Windows 项目的 `.vasp-local/knowledge.md`，进入已配置的远程工作根读 `AGENTS.md`，使用该目录的 `.auto-computational-chemist/`。收到“学习这个目录”时追加到 `knowledge/personal/`。
 
-使用默认库时，按[SSH 读取入口](references/group-library.md)从 `Master/README.md` 选方法，在 `Master/case_index.md` 按目标物理量、结构和磁态选已验收算例。读取该例的 `workflow.md`，在用户工作目录按“输入与关键参数 → 执行 → 验收 → 结果文件”复算。用 AICC 做预检和验收。
+使用默认库时，以 `/public/home/zjt/.examples` 为根，从 `Master/README.md` 选方法，在 `Master/case_index.md` 按目标物理量、结构和磁态选已验收算例。读取该例的 `workflow.md`，在用户工作目录按“输入与关键参数 → 执行 → 验收 → 结果文件”复算。用个人工作根的 AICC 做预检和验收。[SSH 读取入口](references/group-library.md)
 
 维护参考文档时，只写可复用的标准流程和实测参数。未验收条目列入“待建设”。查询运行或续算状态时读算例的 PBS 作业表。
 
