@@ -38,12 +38,7 @@ def main():
             'cat -- "$doc"',
         ])
     else:
-        commands.extend([
-            "cat AGENTS.md Master/README.md",
-            "printf '\\nMaterials/examples/\\n'",
-            "find Materials/examples -mindepth 1 -maxdepth 1 -type d -print",
-            "find Materials/examples -mindepth 2 -maxdepth 2 -name workflow.md -type f -print",
-        ])
+        commands.append("cat AGENTS.md Master/README.md Master/case_index.md")
     result = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=10",
                              args.ssh, "bash -s"], input=("\n".join(commands) + "\n").encode())
     return result.returncode

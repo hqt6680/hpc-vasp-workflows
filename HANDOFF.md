@@ -30,7 +30,7 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 ## 组内工作区与服务器资料
 
-组员默认库位于 `/public/home/zjt/.examples`，以其中的 `Master/README.md`、`Master/case_index.md` 和 `Materials/examples/` 为查询入口。四个标准算例各自的 `workflow.md` 记录已验收的输入、关键参数和结果。公共科学脚本的维护源仍在 `hqt/Master/Simulation`，维护后将验收的变更同步到发布库。组员初始化从发布库复制 AICC 到所选工作根，重跑时保留个人修改并迁移原有知识库链接。[SSH 读取入口](share/vasp-pbs/references/group-library.md)
+组员默认库位于 `/public/home/zjt/.examples`，以其中的 `Master/README.md`、`Master/case_index.md` 和 `Materials/examples/` 为查询入口。发布版索引只收录 K₂CrF₄、MnInP₂Te₆‑TB2J、MnInP₂Te₆‑cRPA 和 CoI₂‑DMI，各自的 `workflow.md` 记录已验收的输入、关键参数和结果。公共科学脚本的维护源仍在 `hqt/Master/Simulation`，维护后将验收的变更同步到发布库。组员初始化从发布库复制 AICC 到所选工作根，重跑时保留个人修改并迁移原有知识库链接。[SSH 读取入口](share/vasp-pbs/references/group-library.md)
 
 专属 AICC 与新知识库入口使用技能包版本 `vasp-pbs-live-2026.11.25`，部署记录见服务器 `hqt/.codex_reports/vasp_audits/member_library_20261125/deployment.md`。此前 `vasp-pbs-live-2026.11.24.2` 已验证本机监听器、数据库与日志的恢复，以及旧版恢复兼容性。[本机恢复入口](share/vasp-pbs/scripts/local_workspace.py)
 

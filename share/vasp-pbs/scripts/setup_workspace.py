@@ -122,8 +122,8 @@ def configure_remote(workdir, enabled):
                 raise ValueError("Path already occupied: " + str(link))
         rules = root / "AGENTS.md"
         group_rule = ("默认知识库为 `" + str(LIBRARY_ROOT) + "`。通过 knowledge/default/README.md "
-                      "和 knowledge/default/case_index.md 读取教程与索引。每次查算例时枚举 "
-                      "knowledge/examples/ 并读取对应 workflow.md。" if enabled else
+                      "和 knowledge/default/case_index.md 读取教程与四个标准算例的索引。"
+                      "按索引读取 knowledge/examples/ 下相应的 workflow.md。" if enabled else
                       "本工作区已选择跳过默认组内知识库。")
         body = ("## VASP 工作区\n\n" + group_rule + "\n"
                 "个人计算方法保存在 knowledge/personal/。收到学习目录的请求时，按指定范围整理来源、适用条件和验收依据。\n"
