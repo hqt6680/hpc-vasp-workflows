@@ -30,7 +30,7 @@ python scripts/package_vasp_pbs.py "$env:TEMP/vasp-pbs-skill.zip"
 
 ## 组内工作区与服务器资料
 
-K₂CrF₄ 的 P2₁/c 完整插值声子谱已同步至组内库。在服务器打开 `Master/K2CrF4.md` 按结构相选择结果，或查看 `Materials/examples/K2CrF4/phon3/spectrum-small/` 中的色散图、力常数和网格复核结果。
+K₂CrF₄ 的 P2₁/c 完整插值声子谱已同步至组内库。在服务器打开 `Master/K2CrF4.md` 按结构相选择结果，或查看 `Materials/examples/K2CrF4/phon3/spectrum-small/` 中的色散图、力常数和网格复核结果。Γ–X 内部 q=(¼,0,0) 的直接冻结声子对照保存在同算例的 `phon3/q4/result.json`，包含正、负位移能量及投影力曲率。
 
 组员默认库位于 `/public/home/zjt/.examples`，以其中的 `Master/README.md`、`Master/case_index.md` 和 `Materials/examples/` 为查询入口。发布版索引只收录 K₂CrF₄、MnInP₂Te₆‑TB2J、MnInP₂Te₆‑cRPA 和 CoI₂‑DMI，各自的 `workflow.md` 记录已验收的输入、关键参数和结果。公共科学脚本的维护源仍在 `hqt/Master/Simulation`，维护后将验收的变更同步到发布库。组员初始化从发布库复制 AICC 到所选工作根，重跑时保留个人修改并迁移原有知识库链接。[SSH 读取入口](share/vasp-pbs/references/group-library.md)
 
